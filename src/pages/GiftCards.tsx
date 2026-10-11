@@ -25,7 +25,8 @@ export default function GiftCards() {
     const add = async () => {
         const n = Number(amount);
         if (!(n > 0) || n > 100000) return setErr(t("Enter an amount between 0 and 100000"));
-        await api.giftCards.save(storeId, { id: crypto.randomUUID(), initial: n, balance: n, active: true, createdAt: Date.now() });
+        // BUG-43 fix: code is generated server-side; the backend ignores this field on create.
+        await api.giftCards.save(storeId, { id: crypto.randomUUID(), code: "", initial: n, balance: n, active: true, createdAt: Date.now() });
         close(); toast(t("Gift card created")); reload();
     };
     const addBtn = <button className="btn" onClick={() => setOpen(true)}>{t("Create gift card")}</button>;

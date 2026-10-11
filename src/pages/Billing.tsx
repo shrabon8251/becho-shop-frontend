@@ -48,7 +48,7 @@ export default function Billing() {
     useEffect(() => {
         let alive = true;
         api.billing.plans(store.id)
-            .then((r: { merchantNumbers?: Record<string, string> }) => { if (alive && r?.merchantNumbers) setMerchantNumbers(r.merchantNumbers); })
+            .then((r) => { const nums = (r as { merchantNumbers?: Record<string, string> } | null)?.merchantNumbers; if (alive && nums) setMerchantNumbers(nums); })
             .catch(() => { /* numbers optional */ });
         return () => { alive = false; };
     }, [store.id]);
