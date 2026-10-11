@@ -7,7 +7,7 @@ import { Bell } from "../components/Bell";
 import { ThemeToggle } from "../components/ThemeToggle";
 import { VerifyGate } from "../components/VerifyGate";
 import { useEffect, useState } from "react";
-import { Navigate, NavLink, Outlet, useLocation } from "react-router-dom";
+import { Navigate, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { paidDaysLeft, trialDaysLeft } from "../lib/plans";
 import { useAuth } from "../store/auth";
 import { useLocale, useT } from "../lib/fx";
@@ -100,8 +100,10 @@ export default function AdminLayout({ store, reload }: StoreCtx) {
     const t = useT();
     const { lang, setLang } = useLocale();
     const loc = useLocation();
+    const nav = useNavigate();
     const [menu, setMenu] = useState(false);
     const [open, setOpen] = useState<Record<string, boolean>>({});
+    const [profileOpen, setProfileOpen] = useState(false);
     useEffect(() => setMenu(false), [loc.pathname]);
     const isActive = (to: string) => (to === "/admin" ? loc.pathname === "/admin" : loc.pathname.startsWith(to));
     // Browser tab title follows the active admin section.
@@ -145,7 +147,32 @@ export default function AdminLayout({ store, reload }: StoreCtx) {
                 <CommandPalette items={allowed.flatMap((n) => (n.children ? n.children : [n])).map((n) => ({ to: n.to, label: n.label }))} />
                 <select className="mini-select" aria-label={t("Language")} value={lang} onChange={(e) => setLang(e.target.value as "en" | "bn")}><option value="en">EN</option><option value="bn">বাংলা</option></select>
                 <ThemeToggle />
-                <div className="me"><b>{store.name.slice(0, 2).toUpperCase()}</b><span>{store.name}</span></div>
+                <div className="me-wrap" style={{ position: "relative" }}>
+                    <button className="me" onClick={() => setProfileOpen(!profileOpen)} style={{ cursor: "pointer", background: "none", border: "none" }}>
+                        <b>{store.name.slice(0, 2).toUpperCase()}</b><span>{store.name}</span>
+                    </button>
+                    {profileOpen && (
+                        <>
+                            <div style={{ position: "fixed", inset: 0, zIndex: 99 }} onClick={() => setProfileOpen(false)} />
+                            <div className="profile-menu" style={{
+                                position: "absolute", top: "100%", right: 0, zIndex: 100,
+                                background: "white", border: "1px solid #e5e7eb", borderRadius: 8,
+                                boxShadow: "0 4px 12px rgba(0,0,0,0.15)", minWidth: 200, padding: 8
+                            }}>
+                                <div style={{ padding: "8px 12px", borderBottom: "1px solid #e5e7eb", marginBottom: 4 }}>
+                                    <div style={{ fontWeight: 600 }}>{user?.name || user?.email}</div>
+                                    <div style={{ fontSize: 12, color: "#6b7280" }}>{user?.email}</div>
+                                </div>
+                                <button className="nav" style={{ width: "100%", textAlign: "left" }} onClick={() => { setProfileOpen(false); nav("/admin/settings"); }}>⚙️ {t("Store settings")}</button>
+                                <button className="nav" style={{ width: "100%", textAlign: "left" }} onClick={() => { setProfileOpen(false); nav("/admin/settings"); }}>📞 {t("Change phone")}</button>
+                                <button className="nav" style={{ width: "100%", textAlign: "left" }} onClick={() => { setProfileOpen(false); nav("/admin/settings"); }}>🔑 {t("Change password")}</button>
+                                <div style={{ borderTop: "1px solid #e5e7eb", marginTop: 4, paddingTop: 4 }}>
+                                    <button className="nav" style={{ width: "100%", textAlign: "left" }} onClick={logout}>🚪 {t("Log out")}</button>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </div>
             </header>
             <div className="body">
                 {menu && <div className="scrim" onClick={() => setMenu(false)} />}

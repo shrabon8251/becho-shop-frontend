@@ -20,7 +20,7 @@ function Onboarding({ products, orders, discounts, storeId }: { products: unknow
     const themed = (() => { try { return localStorage.getItem("theme-customized:" + storeId) === "1"; } catch { return false; } })();
     const steps = [
         { ok: products.length > 0, label: t("Add your first product"), to: "/admin/products" },
-        { ok: themed, label: t("Customize your theme"), to: "/admin/themes" },
+        { ok: themed, label: t("Customize your theme"), to: "/admin/theme" },
         { ok: discounts.length > 0, label: t("Create a discount"), to: "/admin/discounts" },
         { ok: orders.length > 0, label: t("Get your first order"), to: "/admin/orders" },
     ];
