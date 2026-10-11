@@ -19,6 +19,7 @@ export default function Signup() {
     const [terms, setTerms] = useState(false);
     const [err, setErr] = useState("");
     const [busy, setBusy] = useState(false);
+    const [step, setStep] = useState(0); // 0=account, 1=store, 2=finishing
     const [verifyEmail, setVerifyEmail] = useState<string | null>(null);
     const [verifyPhone, setVerifyPhone] = useState<string | null>(null);
     const afterEmailVerified = () => {
@@ -40,13 +41,16 @@ export default function Signup() {
             if (!/^[a-z0-9-]{3,}$/.test(sub)) throw new Error(t("Store name: use at least 3 letters or numbers"));
             if (!(await api.stores.available(sub))) throw new Error(t("This store name is taken"));
             setBusy(true);
+            setStep(0);
             // Backend expects LocalDateTime (no timezone suffix): "2026-10-06T20:15:30"
             const termsAcceptedAt = new Date().toISOString().slice(0, 19);
             await signup(f.name.trim(), f.email, f.pw, f.phone.trim() || undefined, termsAcceptedAt);
             const u = useAuth.getState().user;
             if (!u) throw new Error(t("Something went wrong, please try again"));
+            setStep(1);
             const s = await api.stores.create(u.id, { name: f.store.trim(), sub, plan: "Growth", currency: f.currency, industry: "Other" });
             setStoreId(s.id);
+            setStep(2);
             // Apply the theme selected from the landing page preview (if any)
             const themeId = sp.get("theme");
             if (themeId) {
@@ -137,6 +141,26 @@ export default function Signup() {
                         <p className="bx-su-login">{t("Already have an account?")} <Link to="/login">{t("Log in")}</Link></p>
                     </div>)}
             </div>
+            {busy && (
+                <div className="bx-loading-overlay">
+                    <div className="bx-loading-card">
+                        <div className="bx-loading-spinner"><span className="bx-loading-ring" /></div>
+                        <h3>{t("Creating your store")}</h3>
+                        <div className="bx-loading-steps">
+                            {[
+                                t("Creating your account"),
+                                t("Setting up your store"),
+                                t("Almost done"),
+                            ].map((label, i) => (
+                                <div key={label} className={`bx-loading-step ${i < step ? "done" : i === step ? "active" : ""}`}>
+                                    <span className="bx-loading-dot">{i < step ? "✓" : ""}</span>
+                                    <span>{label}…</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
