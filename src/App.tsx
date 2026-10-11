@@ -174,6 +174,7 @@ export default function App() {
                 <Route path="/migration" element={<Migration />} />
                 <Route path="/pricing" element={<PricingRedirect />} />
                 <Route path="/s/:sub" element={<ShopBySubdomain />} />
+                <Route path="/shop/:slug" element={<ShopBySubdomain />} />
                 <Route path="/shop" element={<ShopLayout />}>
                     <Route index element={<Home />} />
                     <Route path="products" element={<Catalog />} />
