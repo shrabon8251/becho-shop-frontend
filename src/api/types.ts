@@ -83,7 +83,13 @@ export interface Api {
         reply(storeId: string, id: string, text: string): Promise<Ticket>;
     };
     platform: { // platform admin only: enforce on the server
-        plans: { get(): Promise<PlanPrices>; save(p: PlanPrices): Promise<PlanPrices> };
+        stores: {
+            update(id: string, patch: unknown): Promise<unknown>;
+            remove(id: string): Promise<unknown>;
+        };
+        // Backend shape is { starter: { monthly, yearly }, ... } (lowercase keys, nested),
+        // not Record<Plan, number> — callers must normalize (see SuperAdmin priceOf).
+        plans: { get(): Promise<PlanPrices>; save(p: unknown): Promise<unknown> };
         tickets: { list(): Promise<Ticket[]>; reply(id: string, text: string): Promise<Ticket>; setStatus(id: string, status: Ticket["status"]): Promise<Ticket> };
         announcements: {
             list(): Promise<Announcement[]>;
@@ -145,7 +151,7 @@ export interface Api {
     inventory: {
         levels(storeId: string): Promise<StockLevel[]>; // per-location stock breakdown
         set(storeId: string, variantId: string, locationId: string, qty: number): Promise<StockLevel>; // qty >= 0
-        transfers(storeId: string): Promise<StockTransfer[]>;
+        transfers(storeId: string): Promise<StockTransfer[]>; // must validate source stock server-side
         transfer(storeId: string, fromId: string, toId: string, items: { variantId: string; qty: number }[]): Promise<StockTransfer>; // must validate source stock server-side
     };
     draftOrders: Crud<DraftOrder> & {

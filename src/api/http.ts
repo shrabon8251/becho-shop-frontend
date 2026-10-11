@@ -112,11 +112,25 @@ export function httpApi(base: string): Api {
         throw new Error("Session expired. Please log in again.");
     };
     const req = async <T,>(path: string, method = "GET", body?: unknown): Promise<T> => {
-        const res = await fetch(base + path, {
-            method,
-            headers: { "Content-Type": "application/json", ...authHeader() },
-            body: body ? JSON.stringify(body) : undefined,
-        });
+        // No fetch timeout = a hung connection shows <Loading /> forever (BUG-35 class).
+        // Abort after 30s so every loader can show its error/retry UI instead.
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 30000);
+        let res: Response;
+        try {
+            res = await fetch(base + path, {
+                method,
+                headers: { "Content-Type": "application/json", ...authHeader() },
+                body: body ? JSON.stringify(body) : undefined,
+                signal: ctrl.signal,
+            });
+        } catch (e) {
+            if (e instanceof DOMException && e.name === "AbortError")
+                throw new Error("Request timed out. Please check your connection and retry.");
+            throw e;
+        } finally {
+            clearTimeout(timer);
+        }
         if (res.status === 401) {
             // On an auth page a 401 is a credential failure (wrong email/password),
             // not an expired session — show the backend's real message.
@@ -370,6 +384,10 @@ export function httpApi(base: string): Api {
             reply: (s, id, text) => req(`/stores/${s}/support/tickets/${id}/reply`, "POST", { text }),
         },
         platform: {
+            stores: {
+                update: (id: string, patch: unknown) => req(`/platform/stores/${id}`, "PATCH", patch),
+                remove: (id: string) => req(`/platform/stores/${id}`, "DELETE"),
+            },
             plans: { get: () => req("/platform/plans"), save: (p) => req("/platform/plans", "PUT", p) },
             tickets: { list: () => req("/platform/tickets"), reply: (id, text) => req(`/platform/tickets/${id}/reply`, "POST", { text }), setStatus: (id, status) => req(`/platform/tickets/${id}`, "PATCH", { status }) },
             impersonate: (storeId) => req(`/platform/stores/${storeId}/impersonate`, "POST"),
