@@ -168,7 +168,7 @@ export default function AdminLayout({ store, reload }: StoreCtx) {
                         </div>
                     ))}
                     <div className="sec">{t("Account")}</div>
-                    <NavLink to={`/shop?store=${store.id}`} className="nav"><Icon n="Online Store" />{t("View store")}</NavLink>
+                    <NavLink to={`/shop/${store.sub}`} className="nav"><Icon n="Online Store" />{t("View store")}</NavLink>
                     <button className="nav" onClick={logout}><Icon n="Log out" />{t("Log out")}</button>
                 </aside>
                 <main>
