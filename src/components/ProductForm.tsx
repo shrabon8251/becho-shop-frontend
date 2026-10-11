@@ -79,6 +79,7 @@ export default function ProductForm({ initial, collections, storeId, isNew, onSa
     // BUG-30 fix: keep raw text while typing so commas aren't stripped mid-typing.
     // Parse to values only on blur.
     const [rawValues, setRawValues] = useState<Record<number, string>>({});
+    const [rawTags, setRawTags] = useState<string | null>(null);
     const opts = draft.options ?? [];
     const matrix = opts.length > 0;
 
@@ -202,7 +203,10 @@ export default function ProductForm({ initial, collections, storeId, isNew, onSa
                             <select value={draft.collectionId} onChange={(e) => setDraft({ ...draft, collectionId: e.target.value })}><option value="">{t("None")}</option>{collections.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
                         <label className="mu-t">{t("Vendor")}<input value={draft.vendor ?? ""} onChange={(e) => setDraft({ ...draft, vendor: e.target.value })} placeholder={t("e.g. Acme")} /></label>
                         <label className="mu-t">{t("Product type")}<input value={draft.productType ?? ""} onChange={(e) => setDraft({ ...draft, productType: e.target.value })} placeholder={t("e.g. T-shirt")} /></label>
-                        <label className="mu-t">{t("Tags (comma separated)")}<input value={(draft.tags ?? []).join(", ")} onChange={(e) => setDraft({ ...draft, tags: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })} placeholder={t("e.g. summer, cotton")} /></label>
+                        <label className="mu-t">{t("Tags (comma separated)")}<input value={rawTags ?? (draft.tags ?? []).join(", ")}
+                                                                                    onChange={(e) => setRawTags(e.target.value)}
+                                                                                    onBlur={(e) => { setDraft({ ...draft, tags: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) }); setRawTags(null); }}
+                                                                                    placeholder={t("e.g. summer, cotton")} /></label>
                     </Card>
                     <Card><b>{t("Purchase options")}</b>
                         <label className="mu-t">{t("Product video URL")}<input value={draft.video ?? ""} onChange={(e) => setDraft({ ...draft, video: e.target.value || undefined })} placeholder="https://…" /></label>
