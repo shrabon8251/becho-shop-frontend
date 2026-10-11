@@ -95,10 +95,18 @@ export function useShopData(storeId?: string): ShopData | null {
             failed.push(name);
             return fallback;
         };
+        // Resilience: if products fail, use empty list instead of blanking the page.
+        // Settings/theme have sensible defaults via normalizers.
+        const products = pr.status === "fulfilled" ? pr.value.filter((p) => p.status === "Active") : [];
+        if (pr.status === "rejected") failed.push("products");
+        const settings = se.status === "fulfilled" ? se.value : null;
+        if (se.status === "rejected") failed.push("settings");
+        const theme = th.status === "fulfilled" ? th.value : null;
+        if (th.status === "rejected") failed.push("theme");
         return {
-            products: pr.value.filter((p) => p.status === "Active"),
-            settings: se.value,
-            theme: th.value,
+            products,
+            settings,
+            theme,
             discounts: grab(di, [], "discounts"),
             apps: grab(ap, APPS_OFF, "apps"),
             profiles: [],
