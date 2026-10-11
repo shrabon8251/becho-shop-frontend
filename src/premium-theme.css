@@ -1,0 +1,167 @@
+/* ============================================================
+   Becho Premium Theme — global visual upgrade (CSS only)
+   No logic changes. Import after styles.css in main.tsx.
+   Dark mode: set data-theme="dark" on <html>.
+   ============================================================ */
+
+/* ---------- Light mode (default) premium palette ---------- */
+:root {
+    --bg: #f6f7fb;
+    --card: #ffffff;
+    --tx: #1e1b2e;
+    --mu: #6b7280;
+    --bd: #e8eaf1;
+    --ac: #7c3aed;
+    --ac-soft: #ede9fe;
+    --ac-grad: linear-gradient(135deg, #7c3aed, #a855f7);
+    --ok: #059669;
+    --er: #dc2626;
+    --warn: #d97706;
+    --focus: #7c3aed;
+    --shadow: 0 1px 2px rgba(30, 27, 46, .05), 0 8px 24px -12px rgba(30, 27, 46, .12);
+    --shadow-lg: 0 2px 4px rgba(30, 27, 46, .06), 0 16px 40px -16px rgba(124, 58, 237, .18);
+}
+
+/* ---------- Dark mode ---------- */
+[data-theme="dark"] {
+    --bg: #0f0f1a;
+    --card: #171724;
+    --tx: #f1f0fa;
+    --mu: #9ca3af;
+    --bd: #26263a;
+    --ac: #a78bfa;
+    --ac-soft: #2a2145;
+    --ac-grad: linear-gradient(135deg, #8b5cf6, #c084fc);
+    --ok: #34d399;
+    --er: #f87171;
+    --warn: #fbbf24;
+    --focus: #a78bfa;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px -12px rgba(0, 0, 0, .5);
+    --shadow-lg: 0 2px 8px rgba(0, 0, 0, .4), 0 16px 40px -16px rgba(139, 92, 246, .25);
+}
+
+/* Smooth theme transition */
+body, .card, .btn, table, input, select, .nav {
+    transition: background-color .3s ease, color .3s ease, border-color .3s ease, box-shadow .3s ease;
+}
+
+/* ---------- Cards ---------- */
+.card {
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid var(--bd);
+    box-shadow: var(--shadow);
+}
+.card:hover {
+    box-shadow: var(--shadow-lg);
+}
+
+/* ---------- Metric tiles ---------- */
+.mtile {
+    position: relative;
+    overflow: hidden;
+    border-top: 3px solid var(--ac);
+}
+.mtile .big {
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    margin: 6px 0;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+    background: var(--ac-grad);
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px -4px rgba(124, 58, 237, .4);
+    transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+}
+.btn:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px -6px rgba(124, 58, 237, .5);
+}
+.btn:active { transform: translateY(0); }
+.btn.s {
+    background: var(--card);
+    color: var(--tx);
+    box-shadow: 0 0 0 1px var(--bd);
+}
+.btn.s:hover { background: var(--ac-soft); box-shadow: 0 0 0 1px var(--ac); }
+.btn.danger { background: linear-gradient(135deg, #dc2626, #f87171); }
+.btn.plain { color: var(--ac); }
+.btn.plain:hover { background: var(--ac-soft); }
+
+/* ---------- Tables ---------- */
+table { border-radius: 12px; overflow: hidden; }
+th {
+    background: var(--ac-soft);
+    color: var(--tx);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: .06em;
+    padding: 12px 14px;
+}
+td { padding: 12px 14px; border-top: 1px solid var(--bd); }
+tbody tr { transition: background-color .15s ease; }
+tbody tr:hover { background: var(--ac-soft); }
+
+/* ---------- Inputs ---------- */
+input[type="text"], input[type="email"], input[type="password"],
+input[type="number"], input[type="tel"], select, textarea {
+    border-radius: 10px;
+    border: 1.5px solid var(--bd);
+    padding: 10px 14px;
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--ac);
+    box-shadow: 0 0 0 3px var(--ac-soft);
+}
+
+/* ---------- Badges ---------- */
+.badge, .Badge {
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* ---------- Page headers ---------- */
+.pagehead, .PageHeader {
+    margin-bottom: 20px;
+}
+.pagehead h1, .PageHeader h1 {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -.02em;
+}
+
+/* ---------- Navigation active state ---------- */
+.nav.active, .nav[aria-current="page"] {
+    background: var(--ac-grad);
+    color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px -4px rgba(124, 58, 237, .4);
+}
+
+/* ---------- Theme toggle button ---------- */
+.theme-toggle {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    display: grid; place-items: center;
+    background: var(--card);
+    border: 1px solid var(--bd);
+    cursor: pointer;
+    font-size: 18px;
+    transition: transform .2s ease, box-shadow .2s ease;
+    box-shadow: var(--shadow);
+}
+.theme-toggle:hover {
+    transform: scale(1.08) rotate(12deg);
+    box-shadow: var(--shadow-lg);
+}
