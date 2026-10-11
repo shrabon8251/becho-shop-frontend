@@ -10,7 +10,14 @@ import { useLoad } from "./useLoad";
 function resolveShopStore(): string {
     try {
         const q = new URLSearchParams(window.location.search).get("store");
-        if (q && q.trim()) return q.trim();
+        if (q && q.trim()) {
+            // Remember for navigation within the shop (links don't carry ?store=).
+            try { sessionStorage.setItem("becho-shop-store", q.trim()); } catch { /* ignore */ }
+            return q.trim();
+        }
+        // Fall back to the store resolved from /shop/:slug (if any).
+        const saved = sessionStorage.getItem("becho-shop-store");
+        if (saved && saved.trim()) return saved.trim();
     } catch { /* ignore */ }
     const env = (import.meta.env.VITE_STOREFRONT_STORE_ID as string | undefined)?.trim();
     if (env) return env;

@@ -14,7 +14,10 @@ export default function ShopBySubdomain() {
     useEffect(() => {
         if (!name) { nav("/shop", { replace: true }); return; }
         api.storefront.bySubdomain(name)
-            .then((r) => nav(`/shop?store=${r.storeId}`, { replace: true }))
+            .then((r) => {
+                try { sessionStorage.setItem("becho-shop-store", r.storeId); } catch { /* ignore */ }
+                nav(`/shop?store=${r.storeId}`, { replace: true });
+            })
             .catch(() => nav("/shop", { replace: true }));
     }, [name, nav]);
     return <Loading />;
