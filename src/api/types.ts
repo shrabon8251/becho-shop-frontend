@@ -183,6 +183,8 @@ export interface Api {
         discounts(storeId: string): Promise<Discount[]>;
         apps(storeId: string): Promise<AppsConfig>;
         collections(storeId: string): Promise<Collection[]>;
+        bundles(storeId: string): Promise<Bundle[]>;
+        posts(storeId: string): Promise<Post[]>;
     };
     loyalty: {
         get(storeId: string): Promise<LoyaltySettings>;

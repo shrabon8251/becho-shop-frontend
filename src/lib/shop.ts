@@ -28,6 +28,19 @@ function resolveShopStore(): string {
 export function shopStore(): string {
     return resolveShopStore();
 }
+
+import { useAuth } from "../store/auth";  // top-এ import-এ যোগ করো (যদি না থাকে)
+
+/** Merchant নিজের store দেখলে তার storeId, নাহলে null */
+export function ownStoreId(): string | null {
+    try {
+        const me = useAuth.getState().user?.storeId ?? null;
+        const viewing = shopStore();
+        return me && me === viewing ? me : null;
+    } catch { return null; }
+}
+
+
 export interface ShopData {
     products: Product[];
     settings: Settings;

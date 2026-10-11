@@ -457,6 +457,8 @@ export function httpApi(base: string): Api {
             discounts: (s) => req<unknown[]>(`/api/storefront/stores/${s}/discounts`).then((ds) => ds.map(normalizeDiscount)),
             apps: (s) => req(`/api/storefront/stores/${s}/apps`).then(normalizeApps),
             collections: (s) => req(`/api/storefront/stores/${s}/collections`),
+            bundles: (s) => req(`/api/storefront/stores/${s}/bundles`),
+            posts: (s) => req(`/api/storefront/stores/${s}/posts`),
         },
     };
 }
