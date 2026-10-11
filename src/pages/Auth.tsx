@@ -52,7 +52,8 @@ export default function Auth() {
                                            sendCode={() => { const me = useAuth.getState().user; return me ? api.auth.sendPhoneCode(me.email) : Promise.resolve(); }}
                                            verifyCode={(code) => { const me = useAuth.getState().user; return me ? api.auth.verifyPhone(me.email, code).then((u) => { useAuth.setState({ user: u }); }) : Promise.resolve(); }}
                                            onVerified={() => nav("/admin")}
-                                           onBack={() => { setVerifyPhone(null); nav("/admin"); }} /></div>
+                                           onBack={() => { setVerifyPhone(null); nav("/admin"); }}
+                                           onSkip={() => { setVerifyPhone(null); nav("/admin"); }} /></div>
     );
     return (
         <AuthShell mode="login" title={mode === "login" ? t("Log in") : t("Create account")}

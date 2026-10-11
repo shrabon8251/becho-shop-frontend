@@ -102,7 +102,8 @@ export default function Signup() {
                                                                 useAuth.setState({ user: { ...u, storeId: u.storeId ?? prev?.storeId ?? null } });
                                                             }) : Promise.resolve(); }}
                                                             onVerified={() => nav("/admin")}
-                                                            onBack={() => { setVerifyPhone(null); nav("/admin"); }} /></div>
+                                                            onBack={() => { setVerifyPhone(null); nav("/admin"); }}
+                                                            onSkip={() => { setVerifyPhone(null); nav("/admin"); }} /></div>
                 ) : (
                     <div className="bx-su-card">
                         <h1>{t("Start your free trial")}</h1>
