@@ -140,9 +140,15 @@ export default function Billing() {
             {pending && (
                 <Card><b>💳 {t("Complete your payment")}</b>
                     <p>{t("Plan")}: <b>{pending.plan}</b> · {money(pending.total, pending.currency)}</p>
-                    {activeMethod?.kind === "sslcommerz" ? (
+                    {activeMethod?.kind === "sslcommerz" ? (<>
                         <p className="mu-t">{t("You'll be redirected to SSLCommerz to complete payment. Your plan activates automatically after the gateway confirms.")}</p>
-                    ) : (<>
+                        <button className="btn" onClick={async () => {
+                            try {
+                                const r = await api.billing.initiateSslCommerz(store.id, pending.plan, pending.cycle, promo.trim() || undefined);
+                                if (r.gatewayUrl) window.location.href = r.gatewayUrl;
+                            } catch (e) { setMsg((e as Error).message); }
+                        }}>{t("Pay with SSLCommerz")}</button>
+                    </>) : (<>
                         <p className="mu-t">
                             {methodLabel
                                 ? t("Pay with your saved method:") + " " + methodLabel

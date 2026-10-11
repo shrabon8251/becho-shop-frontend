@@ -67,6 +67,7 @@ export interface Api {
         quote(id: string, plan: string, cycle: string, promoCode?: string): Promise<{ plan: string; cycle: string; months: number; subtotal: number; discount: number; promoDiscount: number; total: number; currency: string }>;
         subscribe(id: string, plan: string, cycle?: string, promoCode?: string): Promise<{ paymentRequired?: boolean; billingStatus?: string; total?: number; currency?: string } & Partial<Store>>; // pending_payment until confirm
         confirm(id: string, trxId?: string): Promise<{ billingStatus: string; plan?: string; cycle?: string }>;
+        initiateSslCommerz(id: string, plan: string, cycle: string, promoCode?: string): Promise<{ gatewayUrl: string; sessionKey: string }>;
     };
     /** Public contact form → POST /contact (persisted server-side). */
     contact: {

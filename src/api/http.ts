@@ -325,6 +325,7 @@ export function httpApi(base: string): Api {
             quote: (id, plan, cycle, promoCode) => req(`/stores/${id}/billing/quote`, "POST", { plan, cycle, promoCode }),
             subscribe: (id, plan, cycle = "monthly", promoCode) => req(`/stores/${id}/billing/subscribe`, "POST", { plan, cycle, promoCode }),
             confirm: (id, trxId) => req(`/stores/${id}/billing/confirm`, "POST", { trxId }),
+            initiateSslCommerz: (id, plan, cycle, promoCode) => req(`/stores/${id}/billing/sslcommerz/initiate`, "POST", { plan, cycle, promoCode }),
         },
         contact: {
             send: (input) => req(`/contact`, "POST", input),
