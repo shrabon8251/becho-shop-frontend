@@ -86,23 +86,16 @@ export function useShopData(storeId?: string): ShopData | null {
             api.storefront.theme(sid),
             api.storefront.apps(sid),
         ]);
-        if (pr.status === "rejected") throw pr.reason;
-        if (se.status === "rejected") throw se.reason;
-        if (th.status === "rejected") throw th.reason;
+        // Resilience: never throw — one failed call shouldn't blank the whole page.
         const failed: string[] = [];
         const grab = <T>(r: PromiseSettledResult<T>, fallback: T, name: string): T => {
             if (r.status === "fulfilled") return r.value;
             failed.push(name);
             return fallback;
         };
-        // Resilience: if products fail, use empty list instead of blanking the page.
-        // Settings/theme have sensible defaults via normalizers.
-        const products = pr.status === "fulfilled" ? pr.value.filter((p) => p.status === "Active") : [];
-        if (pr.status === "rejected") failed.push("products");
-        const settings = se.status === "fulfilled" ? se.value : null;
-        if (se.status === "rejected") failed.push("settings");
-        const theme = th.status === "fulfilled" ? th.value : null;
-        if (th.status === "rejected") failed.push("theme");
+        const products = grab(pr, [], "products").filter((p) => p.status === "Active");
+        const settings = grab(se, {} as Settings, "settings");
+        const theme = grab(th, {} as Theme, "theme");
         return {
             products,
             settings,
