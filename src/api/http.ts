@@ -201,6 +201,8 @@ export function httpApi(base: string): Api {
             ...(o as object),
             id: String(o.id ?? ""),
             status: (st === "active" ? "Active" : "Draft") as "Active" | "Draft",
+            // Backend uses `videoUrl`, frontend uses `video`
+            video: (o.videoUrl ?? o.video) as string | undefined,
             variants: Array.isArray(o.variants) ? o.variants.map((v: unknown) => {
                 const vv = (v ?? {}) as Record<string, unknown>;
                 // MONEY BOUNDARY: the backend stores money in minor units (poisha);
@@ -219,6 +221,8 @@ export function httpApi(base: string): Api {
         const d = (p ?? {}) as Record<string, unknown>;
         return {
             ...(d as object),
+            // Frontend uses `video`, backend uses `videoUrl`
+            videoUrl: d.videoUrl ?? d.video,
             variants: Array.isArray(d.variants) ? (d.variants as unknown[]).map((v) => {
                 const vv = (v ?? {}) as Record<string, unknown>;
                 return {
