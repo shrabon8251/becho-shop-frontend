@@ -93,6 +93,8 @@ function Form({ initial, storeId }: { initial: Theme; storeId: string }) {
     const tr = useT();
     const [base, setBase] = useState(initial);
     const [t, setT] = useState(initial);
+    const { data: store } = useLoad(() => api.stores.get(storeId), [storeId]);
+    const shopUrl = store?.sub ? `/shop/${store.sub}` : "/shop";
     const [add, setAdd] = useState<ThemeSection["type"]>("banner");
     const [open, setOpen] = useState<string | null>(null);
     const [mobile, setMobile] = useState(false);
@@ -188,7 +190,7 @@ function Form({ initial, storeId }: { initial: Theme; storeId: string }) {
                                 <div className="shopw"><HomeSections theme={t} settings={d.settings} products={previewProducts} cols={cols} /></div>
                             </div>) : <p className="mu-t" style={{ padding: 16 }}>{tr("Loading preview...")}</p>}
                     </div>
-                    <p className="mu-t" style={{ textAlign: "center" }}>{tr("Live preview of your home page.")} <Link to="/shop" target="_blank">{tr("Open store")}</Link></p>
+                    <p className="mu-t" style={{ textAlign: "center" }}>{tr("Live preview of your home page.")} <Link to={shopUrl} target="_blank">{tr("Open store")}</Link></p>
                 </div>
             </div>
             <SaveBar dirty={dirty} onSave={() => void save()} onDiscard={() => setT(base)} />
