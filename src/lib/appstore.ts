@@ -1,0 +1,24 @@
+export interface StoreApp {
+  id: string; name: string; tagline: string; category: string; price: string;
+  rating: number; reviews: number; icon: string;
+  builtin?: "bar" | "reviews" | "email-popups" | "live-chat" | "currency" | "insta-feed" | "faq-page" | "back-in-stock" | "ship-tracker" | "loyalty"  | "bundles" | "sales-reports";
+  route?: string;
+  description: string; highlights: string[];
+}
+
+export const APP_CATEGORIES = ["Marketing", "Sales", "Store design", "Support", "Shipping", "Analytics"];
+
+export const APP_CATALOG: StoreApp[] = [
+  { id: "announcement-bar", name: "Announcement Bar", tagline: "Promote sales with a top banner", category: "Store design", price: "Free", rating: 4.8, reviews: 2314, icon: "📢", builtin: "bar", description: "Show a customizable banner at the top of your storefront for sales, free-shipping offers and announcements.", highlights: ["Custom text and colors", "Shows on every page", "One-click on/off"] },
+  { id: "product-reviews", name: "Product Reviews", tagline: "Collect star ratings and reviews", category: "Sales", price: "Free", rating: 4.7, reviews: 1876, icon: "⭐", builtin: "reviews", description: "Let customers rate and review products. Reviews build trust and lift conversion.", highlights: ["Star ratings on products", "Moderate reviews in admin", "SEO-friendly markup"] },
+  { id: "email-popups", builtin: "email-popups", name: "Email Popups", tagline: "Grow your list with popups", category: "Marketing", price: "Free plan available", rating: 4.6, reviews: 1204, icon: "✉️", description: "Capture emails with exit-intent and timed popups, synced to your customer list.", highlights: ["Exit-intent triggers", "Discount code rewards", "Mobile friendly"] },
+  { id: "loyalty-points", builtin: "loyalty", name: "Loyalty Points", tagline: "Reward repeat customers", category: "Marketing", price: "৳990/mo", rating: 4.9, reviews: 864, icon: "🏆", description: "Points for purchases, referrals and reviews that customers redeem as discounts.", highlights: ["Points & tiers", "Referral rewards", "Branded widget"] },
+  { id: "live-chat", builtin: "live-chat", name: "Live Chat", tagline: "Talk to shoppers in real time", category: "Support", price: "৳1,320/mo", rating: 4.5, reviews: 642, icon: "💬", description: "A chat bubble on your storefront so you can answer questions before shoppers leave.", highlights: ["Real-time chat", "Canned replies", "Offline messages"] },
+  { id: "currency-converter", builtin: "currency", name: "Currency Converter", tagline: "Sell in 100+ currencies", category: "Sales", price: "Free", rating: 4.4, reviews: 2103, icon: "💱", description: "Auto-detect shopper location and show prices in their currency.", highlights: ["Auto-detect location", "Works with your rates", "Rounded pricing"] },
+  { id: "bundles", builtin: "bundles", name: "Product Bundles", tagline: "Bundle products, lift AOV", category: "Sales", price: "৳1,100/mo", rating: 4.7, reviews: 433, icon: "📦", description: "Create frequently-bought-together bundles and volume discounts.", highlights: ["Mix & match", "Volume pricing", "Bundle inventory sync"] },
+  { id: "insta-feed", builtin: "insta-feed", name: "Instagram Feed", tagline: "Show your Instagram on site", category: "Store design", price: "Free plan available", rating: 4.2, reviews: 389, icon: "📸", description: "Pull your latest Instagram posts into a shoppable gallery.", highlights: ["Shoppable posts", "Auto-refresh", "Grid or carousel"] },
+  { id: "faq-page", builtin: "faq-page", name: "FAQ Page", tagline: "Answer questions, cut support", category: "Support", price: "Free", rating: 4.6, reviews: 298, icon: "❓", description: "A searchable FAQ section with accordion layout for your storefront.", highlights: ["Searchable", "Categories", "Schema markup"] },
+  { id: "back-in-stock", builtin: "back-in-stock", name: "Back in Stock Alerts", tagline: "Notify on restocks", category: "Marketing", price: "৳550/mo", rating: 4.8, reviews: 521, icon: "🔔", description: "Shoppers subscribe to restock alerts for sold-out variants.", highlights: ["Variant-level alerts", "Email + SMS", "One-click subscribe"] },
+  { id: "ship-tracker", builtin: "ship-tracker", name: "Advanced Tracking", tagline: "Branded tracking pages", category: "Shipping", price: "৳880/mo", rating: 4.5, reviews: 276, icon: "🚚", description: "Branded order tracking pages with live carrier updates.", highlights: ["Branded pages", "Live updates", "Delivery estimates"] },
+  { id: "sales-reports", builtin: "sales-reports", route: "/admin/apps/sales-reports", name: "Sales Reports Pro", tagline: "Deeper analytics", category: "Analytics", price: "৳1,650/mo", rating: 4.7, reviews: 198, icon: "📊", description: "Cohort analysis, LTV and product affinity reports beyond the built-in analytics.", highlights: ["Cohort reports", "LTV tracking", "Scheduled emails"] },
+];

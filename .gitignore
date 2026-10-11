@@ -1,0 +1,23 @@
+# Secrets - never commit real environment files
+.env
+.env.*
+!.env.example
+
+# Build output
+dist/
+dist-ssr/
+
+# Dependencies
+node_modules/
+
+# IDE
+.idea/
+.vscode/
+*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
