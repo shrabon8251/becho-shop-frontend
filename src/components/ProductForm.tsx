@@ -125,6 +125,28 @@ export default function ProductForm({ initial, collections, storeId, isNew, onSa
                                 <button className="btn s" disabled={i === 0} onClick={() => setDraft({ ...draft, images: [u, ...draft.images.filter((_, j) => j !== i)] })}>{t("Main")}</button>{" "}
                                 <button className="btn s" onClick={() => setDraft({ ...draft, images: draft.images.filter((_, j) => j !== i) })}>{t("Remove")}</button></div>))}</div>
                         <input type="file" accept="image/*" multiple onChange={(e) => void upload(e.target.files)} />
+                        <div className="row" style={{ marginTop: 8 }}>
+                            <input type="url" placeholder={t("Paste image URL…")} id="img-url-input"
+                                   onKeyDown={(e) => {
+                                       if (e.key === "Enter") {
+                                           e.preventDefault();
+                                           const inp = e.target as HTMLInputElement;
+                                           const url = inp.value.trim();
+                                           if (url) {
+                                               setDraft((d) => ({ ...d, images: [...d.images, url] }));
+                                               inp.value = "";
+                                           }
+                                       }
+                                   }} style={{ flex: 1 }} />
+                            <button className="btn s" onClick={() => {
+                                const inp = document.getElementById("img-url-input") as HTMLInputElement;
+                                const url = inp?.value.trim();
+                                if (url) {
+                                    setDraft((d) => ({ ...d, images: [...d.images, url] }));
+                                    inp.value = "";
+                                }
+                            }}>{t("Add URL")}</button>
+                        </div>
                         {imgErr && <p className="er-t">{imgErr}</p>}
                     </Card>
                     <Card>
