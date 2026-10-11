@@ -16,12 +16,28 @@ export function combosOf(options: ProductOption[]): Record<string, string>[] {
     if (!valid.length) return [{}];
     return valid.reduce<Record<string, string>[]>((acc, o) => acc.flatMap((c) => o.values.map((val) => ({ ...c, [o.name]: val }))), [{}]);
 }
-/** Rebuild variants from options, preserving data for combinations that still exist. */
+/** Rebuild variants from options, preserving data for combinations that still exist.
+ * BUG-31 fix: when a new option is added, existing variants won't have it in
+ * their optionValues, so exact key match fails. Fall back to best-overlap
+ * match so SKU/stock/price survive option changes. */
 function rebuild(p: Product, options: ProductOption[]): Product {
     const valid = options.filter((o) => o.name.trim() && o.values.length > 0);
     const byKey = new Map(p.variants.map((v) => [comboKey(v.optionValues ?? {}), v]));
+    // Best-overlap: find existing variant matching the most option values.
+    const bestMatch = (c: Record<string, string>): Variant | undefined => {
+        let best: Variant | undefined; let bestScore = -1;
+        for (const v of p.variants) {
+            const ov = v.optionValues ?? {};
+            let score = 0, conflict = false;
+            for (const k of Object.keys(c)) {
+                if (k in ov) { if (ov[k] === c[k]) score++; else { conflict = true; break; } }
+            }
+            if (!conflict && score > bestScore) { bestScore = score; best = v; }
+        }
+        return bestScore > 0 ? best : undefined;
+    };
     const variants = combosOf(options).map((c) => {
-        const ex = byKey.get(comboKey(c));
+        const ex = byKey.get(comboKey(c)) ?? bestMatch(c);
         if (ex) return valid.length ? { ...ex, optionValues: c, name: variantName(c) } : ex;
         return { id: crypto.randomUUID(), name: variantName(c), price: p.variants[0]?.price ?? 0, sku: "", stock: 0, optionValues: c } as Variant;
     });

@@ -22,7 +22,15 @@ export default function Products() {
     // New products go through POST create (backend assigns the numeric id);
     // existing ones through PUT save. Never PUT a client-generated UUID id —
     // the real backend rejects it with 400 (@PathVariable Long id).
-    const save = async (p: Product) => { await (isNew ? api.products.create(storeId, p) : api.products.save(storeId, p)); setEdit(null); setIsNew(false); toast(t("Product saved")); reload(); };
+    // BUG-45 fix: try/catch with error toast — no more silent failures.
+    const save = async (p: Product) => {
+        try {
+            await (isNew ? api.products.create(storeId, p) : api.products.save(storeId, p));
+            setEdit(null); setIsNew(false); toast(t("Product saved")); reload();
+        } catch (e) {
+            toast(t("Failed to save product") + ": " + (e as Error).message, true);
+        }
+    };
     if (edit) return <ProductForm initial={edit} collections={cols} storeId={storeId} isNew={isNew} onSave={(p) => void save(p)} onBack={() => { setEdit(null); setIsNew(false); }} />;
     const add = () => { setIsNew(true); setEdit({ id: crypto.randomUUID(), title: "New product", status: "Draft", collectionId: "", images: [], variants: [{ id: crypto.randomUUID(), name: "Default", price: 0, sku: "", stock: 0 }] }); };
     const addBtn = <button className="btn" onClick={add}>{t("Add product")}</button>;
@@ -40,7 +48,7 @@ export default function Products() {
                         cols={[
                             { h: t("Product"), cell: (p) => <div className="prod">{p.images[0] ? <img className="tn" src={p.images[0]} alt="" /> : <span className="tn ph0" />}{p.title}</div> },
                             { h: t("Status"), cell: (p) => <Badge t={p.status} /> },
-                            { h: t("Inventory"), cell: (p) => `${p.variants.reduce((a, v) => a + v.stock, 0)} ${t("in stock")}` },
+                            { h: t("Inventory"), cell: (p) => `${p.variants.reduce((a, v) => a + (Number(v.stock) || 0), 0)} ${t("in stock")}` },
                             { h: t("Variants"), cell: (p) => `${p.variants.length}` },
                             { h: t("Price"), right: true, cell: (p) => `${t("from")} ${money(Math.min(...p.variants.map((v) => v.price)))}` },
                         ]} />
