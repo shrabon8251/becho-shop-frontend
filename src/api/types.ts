@@ -185,6 +185,7 @@ export interface Api {
         collections(storeId: string): Promise<Collection[]>;
         bundles(storeId: string): Promise<Bundle[]>;
         posts(storeId: string): Promise<Post[]>;
+        bySubdomain(sub: string): Promise<{ storeId: string; name: string; subdomain: string }>;
     };
     loyalty: {
         get(storeId: string): Promise<LoyaltySettings>;

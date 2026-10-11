@@ -76,6 +76,9 @@ export default function ProductForm({ initial, collections, storeId, isNew, onSa
     const [imgErr, setImgErr] = useState("");
     const [bulkPrice, setBulkPrice] = useState("");
     const [bulkStock, setBulkStock] = useState("");
+    // BUG-30 fix: keep raw text while typing so commas aren't stripped mid-typing.
+    // Parse to values only on blur.
+    const [rawValues, setRawValues] = useState<Record<number, string>>({});
     const opts = draft.options ?? [];
     const matrix = opts.length > 0;
 
@@ -135,8 +138,13 @@ export default function ProductForm({ initial, collections, storeId, isNew, onSa
                                     <button className="btn s" onClick={() => setOptions(opts.filter((_, j) => j !== i))}>{t("Remove")}</button>
                                 </div>
                                 <label><span className="mu-t">{t("Values (comma separated)")}</span>
-                                    <input aria-label={t("Option values")} placeholder={t("e.g. S, M, L")} value={o.values.join(", ")}
-                                           onChange={(e) => setOptions(opts.map((x, j) => (j === i ? { ...x, values: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) } : x)))} /></label>
+                                    <input aria-label={t("Option values")} placeholder={t("e.g. S, M, L")} value={rawValues[i] ?? o.values.join(", ")}
+                                           onChange={(e) => setRawValues((prev) => ({ ...prev, [i]: e.target.value }))}
+                                           onBlur={(e) => {
+                                               const values = e.target.value.split(",").map((s) => s.trim()).filter(Boolean);
+                                               setOptions(opts.map((x, j) => (j === i ? { ...x, values } : x)));
+                                               setRawValues((prev) => { const n = { ...prev }; delete n[i]; return n; });
+                                           }} /></label>
                             </div>))}
                     </Card>
                     <Card>

@@ -459,6 +459,7 @@ export function httpApi(base: string): Api {
             collections: (s) => req(`/api/storefront/stores/${s}/collections`),
             bundles: (s) => req(`/api/storefront/stores/${s}/bundles`),
             posts: (s) => req(`/api/storefront/stores/${s}/posts`),
+            bySubdomain: (sub) => req<{ storeId: string; name: string; subdomain: string }>(`/api/storefront/by-subdomain/${sub}`),
         },
     };
 }
