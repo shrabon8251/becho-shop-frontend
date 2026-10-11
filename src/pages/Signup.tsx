@@ -85,13 +85,22 @@ export default function Signup() {
                 {verifyEmail ? (
                     <div className="bx-su-card"><VerifyGate key={"em:"+verifyEmail} channel="email" dest={verifyEmail} email={verifyEmail}
                                                             sendCode={() => api.auth.resendEmailCode(verifyEmail)}
-                                                            verifyCode={(code) => api.auth.verifyEmail(verifyEmail, code).then((u) => { useAuth.setState({ user: u }); })}
+                                                            verifyCode={(code) => api.auth.verifyEmail(verifyEmail, code).then((u) => {
+                                                                // Backend returns the raw User (no storeId) — preserve the
+                                                                // store created moments ago, or the app routes to Onboarding
+                                                                // and a second store gets created (BUG-27).
+                                                                const prev = useAuth.getState().user;
+                                                                useAuth.setState({ user: { ...u, storeId: u.storeId ?? prev?.storeId ?? null } });
+                                                            })}
                                                             onVerified={() => afterEmailVerified()}
                                                             onBack={() => setVerifyEmail(null)} /></div>
                 ) : verifyPhone ? (
                     <div className="bx-su-card"><VerifyGate key={"ph:"+verifyPhone} channel="phone" dest={verifyPhone} email={useAuth.getState().user?.email ?? ""}
                                                             sendCode={() => { const me = useAuth.getState().user; return me ? api.auth.sendPhoneCode(me.email) : Promise.resolve(); }}
-                                                            verifyCode={(code) => { const me = useAuth.getState().user; return me ? api.auth.verifyPhone(me.email, code).then((u) => { useAuth.setState({ user: u }); }) : Promise.resolve(); }}
+                                                            verifyCode={(code) => { const me = useAuth.getState().user; return me ? api.auth.verifyPhone(me.email, code).then((u) => {
+                                                                const prev = useAuth.getState().user;
+                                                                useAuth.setState({ user: { ...u, storeId: u.storeId ?? prev?.storeId ?? null } });
+                                                            }) : Promise.resolve(); }}
                                                             onVerified={() => nav("/admin")}
                                                             onBack={() => { setVerifyPhone(null); nav("/admin"); }} /></div>
                 ) : (
