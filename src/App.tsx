@@ -76,6 +76,7 @@ const Wishlist = lazy(() => import("./pages/shop/Wishlist"));
 const ShopGiftCards = lazy(() => import("./pages/shop/GiftCards"));
 const ShopLayout = lazy(() => import("./pages/shop/ShopLayout"));
 const ShopBySubdomain = lazy(() => import("./pages/ShopBySubdomain"));
+const ShopSlugLayout = lazy(() => import("./pages/ShopSlugLayout"));
 import { useAuth } from "./store/auth";
 import { Loading } from "./components/polaris";
 function PricingRedirect() {
@@ -174,7 +175,27 @@ export default function App() {
                 <Route path="/migration" element={<Migration />} />
                 <Route path="/pricing" element={<PricingRedirect />} />
                 <Route path="/s/:sub" element={<ShopBySubdomain />} />
-                <Route path="/shop/:slug" element={<ShopBySubdomain />} />
+                <Route path="/shop/:slug" element={<ShopSlugLayout />}>
+                    <Route index element={<Home />} />
+                    <Route path="products" element={<Catalog />} />
+                    <Route path="blog" element={<Blog />} />
+                    <Route path="blog/:bslug" element={<BlogPost />} />
+                    <Route path="faq" element={<FaqPage />} />
+                    <Route path="bundles" element={<ShopBundles />} />
+                    <Route path="page/:pslug" element={<PostPage kind="page" />} />
+                    <Route path="product/:id" element={<ProductPage />} />
+                    <Route path="cart" element={<CartPage />} />
+                    <Route path="checkout" element={<Checkout />} />
+                    <Route path="done/:id" element={<Done />} />
+                    <Route path="account" element={<Account />} />
+                    <Route path="track" element={<Track />} />
+                    <Route path="search" element={<Search />} />
+                    <Route path="collections" element={<CollectionsIndex />} />
+                    <Route path="collections/:id" element={<CollectionPage />} />
+                    <Route path="wishlist" element={<Wishlist />} />
+                    <Route path="gift-cards" element={<ShopGiftCards />} />
+                    <Route path="*" element={<ShopNotFound />} />
+                </Route>
                 <Route path="/shop" element={<ShopLayout />}>
                     <Route index element={<Home />} />
                     <Route path="products" element={<Catalog />} />
