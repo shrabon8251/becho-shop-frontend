@@ -30,7 +30,12 @@ const normalizeTheme = (t: unknown): import("../types").Theme => {
     if (!Array.isArray(d.sections)) {
         const preset = THEMES.find((x) => x.id === d.preset);
         const base = preset ? preset.theme : DEFAULT_THEME;
-        return JSON.parse(JSON.stringify(base));
+        // Merge saved theme data over the default — don't discard color/logo/name!
+        const merged = JSON.parse(JSON.stringify(base));
+        for (const k of ["name", "color", "font", "radius", "logoText", "logoImage", "preset", "template", "footer", "header", "colors"]) {
+            if (d[k] !== undefined && d[k] !== null && d[k] !== "") merged[k] = d[k];
+        }
+        return merged;
     }
     return t as import("../types").Theme;
 };

@@ -29,7 +29,8 @@ export default function Auth() {
         try {
             if (!terms) throw new Error(t("Please accept the Terms of Service and Privacy Policy"));
             if (mode === "signup" && f.pw.length < 8) throw new Error(t("Password must be at least 8 characters"));
-            await (mode === "login" ? login(f.email, f.pw) : signup(f.name, f.email, f.pw));
+            const email = f.email.trim().toLowerCase();
+            await (mode === "login" ? login(email, f.pw) : signup(f.name, email, f.pw));
             const u = useAuth.getState().user;
             if (u && !u.emailVerified) { setVerifyEmail(u.email); return; }
             goPhoneOrAdmin();
