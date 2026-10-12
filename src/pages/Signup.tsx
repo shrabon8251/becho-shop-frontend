@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PasswordInput } from "../components/PasswordInput";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../api";
 import { useT } from "../lib/fx";
@@ -115,7 +116,7 @@ export default function Signup() {
                         {err && <div className="bx-err">{err}</div>}
                         <label><span>{t("Your name")}</span><input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} placeholder="Sara Khan" /></label>
                         <label><span>{t("Email")}</span><input type="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} placeholder="sara@example.com" /></label>
-                        <label><span>{t("Password")}</span><input type="password" value={f.pw} onChange={(e) => setF({ ...f, pw: e.target.value })} placeholder="••••••••" /></label>
+                        <label><span>{t("Password")}</span><PasswordInput value={f.pw} onChange={(e) => setF({ ...f, pw: e.target.value })} placeholder="••••••••" /></label>
                         <label><span>{t("Phone")} <i className="mu-t">({t("optional, for SMS verification")})</i></span><input inputMode="tel" value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} placeholder="01XXXXXXXXX" /><span className="bx-hint">{t("Bangladesh format: 01XXXXXXXXX (11 digits)")}</span></label>
                         <label><span>{t("Store name")}</span><input value={f.store} onChange={(e) => setF({ ...f, store: e.target.value })} placeholder="Sara's Boutique" /></label>
                         <label><span>{t("Currency")}</span><select value={f.currency} onChange={(e) => setF({ ...f, currency: e.target.value })}>{CURS.map((c) => <option key={c} value={c}>{c}</option>)}</select></label>

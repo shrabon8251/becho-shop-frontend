@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { PasswordInput } from "../components/PasswordInput";
 import { useAuth } from "../store/auth";
 import { api } from "../api";
 import { VerifyGate } from "../components/VerifyGate";
@@ -63,8 +64,8 @@ export default function Auth() {
             {justReset && <p className="bx-auth-ok">{t("Password reset — please log in with your new password.")}</p>}
             {mode === "signup" && <input type="text" placeholder={t("Name")} value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />}
             <input type="email" placeholder={t("Email")} value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
-            <input type="password" placeholder={t("Password")} value={f.pw} onChange={(e) => setF({ ...f, pw: e.target.value })}
-                   onKeyDown={(e) => e.key === "Enter" && void submit()} />
+            <PasswordInput placeholder={t("Password")} value={f.pw} onChange={(e) => setF({ ...f, pw: e.target.value })}
+                           onKeyDown={(e) => e.key === "Enter" && void submit()} />
             {err && <p className="bx-auth-err">{err}</p>}
             <label className="bx-terms"><input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} /><span>{t("I agree to the")} <Link to="/terms" target="_blank" rel="noopener">{t("Terms of Service")}</Link> {t("and")} <Link to="/privacy" target="_blank" rel="noopener">{t("Privacy Policy")}</Link></span></label>
             <button className="bx-auth-btn" onClick={submit}>{mode === "login" ? t("Log in") : t("Sign up")}</button>

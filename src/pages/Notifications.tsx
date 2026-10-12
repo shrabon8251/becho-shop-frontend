@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PasswordInput } from "../components/PasswordInput";
 import { api } from "../api";
 import { Card } from "../components/ui";
 import { PageHeader, SaveBar, toast, Loading, LoadError } from "../components/polaris";
@@ -86,7 +87,7 @@ export default function Notifications() {
                     <p className="mu-t">{t("Order and stock alert emails are sent through your Brevo account — no platform fallback. If not configured, emails will not be sent.")}</p>
                     <p className="mu-t">💡 {t("Create a free account at brevo.com → get your API key → paste it here. Your sender email must be verified in Brevo. Free tier: 300 emails/day.")}</p>
                     <label><span className="mu-t">{t("Brevo API key")} <span className="req">*</span></span>
-                        <input type="password" autoComplete="new-password" placeholder="xkeysib-••••••" value={cur.brevo?.apiKey ?? ""} onChange={(e) => setS({ ...cur, brevo: { apiKey: e.target.value } })} />
+                        <PasswordInput autoComplete="new-password" placeholder="xkeysib-••••••" value={cur.brevo?.apiKey ?? ""} onChange={(e) => setS({ ...cur, brevo: { apiKey: e.target.value } })} />
                     </label>
                     {!cur.brevo?.apiKey
                         ? <p className="er-t">⚠️ {t("Brevo not configured — customer emails are currently disabled.")}</p>
@@ -108,7 +109,7 @@ export default function Notifications() {
                     </label>
                 </div>
                 <label><span className="mu-t">{t("API key")}</span>
-                    <input type="password" autoComplete="off" placeholder="••••••" value={sms.apiKey ?? ""} onChange={(e) => setNotif({ ...notif, sms: { ...sms, apiKey: e.target.value } })} />
+                    <PasswordInput autoComplete="off" placeholder="••••••" value={sms.apiKey ?? ""} onChange={(e) => setNotif({ ...notif, sms: { ...sms, apiKey: e.target.value } })} />
                 </label>
             </Card>
             {NOTIF_EVENTS.map((e) => (
