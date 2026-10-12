@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { api } from "../api";
 import { useLoad } from "../lib/useLoad";
 import { useAuth } from "../store/auth";
@@ -8,15 +8,15 @@ import type { Product } from "../types";
 export function Bell() {
   const t = useT();
   const user = useAuth((s) => s.user);
-  const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
   const storeId = user?.storeId;
   const canStock = user?.staffRole !== "Support";
   const { data } = useLoad(async () => {
     if (!storeId) return { orders: [], products: [] as Product[] };
-    // Only load when bell is opened — not on every page navigation (perf fix).
     if (!open) return { orders: [], products: [] as Product[] };
-    const [orders, products] = await Promise.all([api.orders.list(storeId), canStock ? api.products.list(storeId) : Promise.resolve<Product[]>([])]);\n    return { orders, products };\n  }, [storeId, open]);
+    const [orders, products] = await Promise.all([api.orders.list(storeId), canStock ? api.products.list(storeId) : Promise.resolve<Product[]>([])]);
+    return { orders, products };
+  }, [storeId, open]);
   const items: { text: string; to: string }[] = [];
   if (data) {
     const toFulfill = data.orders.filter((o) => o.ful === "Unfulfilled" && o.pay !== "Refunded" && o.pay !== "Cancelled").length;
