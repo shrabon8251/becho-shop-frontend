@@ -76,7 +76,7 @@ const APPS_OFF: AppsConfig = {
  * so a failure there returns null (callers keep their loading state).
  * discounts/apps are best-effort: one of them failing no longer blanks the
  * whole shop; the failure is reported in `error` instead.
- * (shippingProfiles still needs merchant auth — skipped for anonymous shoppers.)
+ * (shippingProfiles uses the public /shippingProfiles/public endpoint.)
  *
  * `storeId` override: storefront pages omit it and resolve the public
  * storefront store via `?store=` / VITE_STOREFRONT_STORE_ID. Merchant pages
@@ -86,12 +86,14 @@ const APPS_OFF: AppsConfig = {
 export function useShopData(storeId?: string): ShopData | null {
     const sid = storeId ?? shopStore();
     const { data } = useLoad(async (): Promise<ShopData> => {
-        const [pr, se, di, th, ap] = await Promise.allSettled([
+        const [pr, se, di, th, ap, sp] = await Promise.allSettled([
             api.storefront.products(sid),
             api.storefront.settings(sid),
             api.storefront.discounts(sid),
             api.storefront.theme(sid),
             api.storefront.apps(sid),
+            // Public shipping profiles for checkout (no auth needed).
+            fetch(`/stores/${sid}/shippingProfiles/public`).then((r) => r.ok ? r.json() : []).catch(() => []),
         ]);
         // Resilience: never throw — one failed call shouldn't blank the whole page.
         const failed: string[] = [];
@@ -109,7 +111,7 @@ export function useShopData(storeId?: string): ShopData | null {
             theme,
             discounts: grab(di, [], "discounts"),
             apps: grab(ap, APPS_OFF, "apps"),
-            profiles: [],
+            profiles: grab(sp, [], "shipping"),
             error: failed.length ? `Some store data failed to load (${failed.join(", ")}).` : "",
         };
     }, [sid]);

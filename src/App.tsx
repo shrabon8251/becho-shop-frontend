@@ -92,6 +92,11 @@ function PricingRedirect() {
 function MerchantGate({ storeId }: { storeId: string }) {
     const { data: store, error, reload } = useLoad(() => api.stores.get(storeId), [storeId]);
     const logout = useAuth((s) => s.logout);
+    // Auth failed (401/403) → redirect to login instead of infinite loading.
+    if (error && /401|403|unauthorized|forbidden/i.test(error)) {
+        logout();
+        return <Navigate to="/login" replace />;
+    }
     // Never spin forever: surface load failures with retry + logout.
     if (error && !store) {
         return <div className="shell"><div className="card"><h3>Couldn't load your store</h3><p className="mu-t">{error}</p>
