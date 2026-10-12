@@ -14,9 +14,9 @@ export function Bell() {
   const canStock = user?.staffRole !== "Support";
   const { data } = useLoad(async () => {
     if (!storeId) return { orders: [], products: [] as Product[] };
-    const [orders, products] = await Promise.all([api.orders.list(storeId), canStock ? api.products.list(storeId) : Promise.resolve<Product[]>([])]);
-    return { orders, products };
-  }, [storeId, pathname]);
+    // Only load when bell is opened — not on every page navigation (perf fix).
+    if (!open) return { orders: [], products: [] as Product[] };
+    const [orders, products] = await Promise.all([api.orders.list(storeId), canStock ? api.products.list(storeId) : Promise.resolve<Product[]>([])]);\n    return { orders, products };\n  }, [storeId, open]);
   const items: { text: string; to: string }[] = [];
   if (data) {
     const toFulfill = data.orders.filter((o) => o.ful === "Unfulfilled" && o.pay !== "Refunded" && o.pay !== "Cancelled").length;
