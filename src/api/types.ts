@@ -64,7 +64,7 @@ export interface Api {
         getMethod(id: string): Promise<{ method: { kind: string; label: string; trxId: string | null } | null }>;
         /** Server-driven plans + cycles. Never hardcode prices on the client. */
         plans(id: string): Promise<{ currency: string; plans: { name: string; monthlyPrice: number }[]; cycles: { id: string; months: number; off: number }[] }>;
-        quote(id: string, plan: string, cycle: string, promoCode?: string): Promise<{ plan: string; cycle: string; months: number; subtotal: number; discount: number; promoDiscount: number; total?: number; currency?: string }>;
+        quote(id: string, plan: string, cycle: string, promoCode?: string): Promise<{ plan: string; cycle: string; months: number; subtotal: number; discount: number; promoDiscount: number; total: number; currency: string }>;
         subscribe(id: string, plan: string, cycle?: string, promoCode?: string): Promise<{ paymentRequired?: boolean; billingStatus?: string; total?: number; currency?: string } & Partial<Store>>; // pending_payment until confirm
         confirm(id: string, trxId?: string): Promise<{ billingStatus: string; plan?: string; cycle?: string }>;
         initiateSslCommerz(id: string, plan: string, cycle: string, promoCode?: string): Promise<{ gatewayUrl: string; sessionKey: string }>;
@@ -165,6 +165,11 @@ export interface Api {
     };
     segments: Crud<CustomerSegment>; // saved customer segments (conditions evaluated server-side)
     automations: Crud<Automation>; // marketing automations/flows (abandoned checkout, welcome, win-back)
+    shippingProfiles: Crud<DeliveryProfile>; // delivery profiles: product sets with their own shippable zones
+    abandoned: {
+        list(storeId: string): Promise<AbandonedCheckout[]>;
+        recover(storeId: string, id: string): Promise<AbandonedCheckout>; // backend SENDS the recovery email, then marks recovered
+    };
     stockAlerts: {
         subscribe(storeId: string, productId: string, email: string): Promise<void>;
         list(storeId: string): Promise<StockAlert[]>;
