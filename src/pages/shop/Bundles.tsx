@@ -7,16 +7,34 @@ import { useCart } from "../../store/cart";
 import { Loading } from "../../components/polaris";
 import type { Bundle } from "../../types";
 
-// The public storefront API returns a reduced bundle shape without `active` —
-// the backend only serves active bundles publicly, so a missing flag means visible.
-const visible = (b: Bundle) => (b as Partial<Bundle>).active ?? true;
+// The public storefront API returns a reduced bundle shape: `items` arrives as a
+// JSON string, the price as `priceMinor`, and there is no `active` flag (the
+// backend only serves active bundles publicly, so a missing flag means visible).
+// Normalize both the merchant and public shapes into a full Bundle.
+function normalizeBundle(raw: any): Bundle {
+    let items = raw?.items;
+    if (typeof items === "string") { try { items = JSON.parse(items); } catch { items = []; } }
+    if (!Array.isArray(items)) items = [];
+    const price = typeof raw?.price === "number" ? raw.price
+        : typeof raw?.priceMinor === "number" ? raw.priceMinor / 100 : 0;
+    return {
+        id: String(raw?.id ?? ""),
+        name: raw?.name ?? "",
+        items,
+        price,
+        image: raw?.image ?? undefined,
+        active: typeof raw?.active === "boolean" ? raw.active : true,
+    };
+}
+const visible = (b: Bundle) => b.active;
 
 export default function Bundles() {
     const d = useShopData();
     const fx = useFx(d?.settings);
     const t = useT();
     const { add, setOpen } = useCart();
-    const { data: bundles } = useLoad(() => { const o = ownStoreId(); return o ? api.bundles.list(o) : api.storefront.bundles(shopStore()); }, []);
+    const { data: rawBundles } = useLoad(() => { const o = ownStoreId(); return o ? api.bundles.list(o) : api.storefront.bundles(shopStore()); }, []);
+    const bundles = rawBundles?.map(normalizeBundle);
     useSeo(t("Bundles"), undefined, d?.settings.storeName);
     if (!d || !bundles) return <Loading />;
     const idx = variantIndex(d.products);
@@ -66,7 +84,8 @@ export function BundleBox({ productId }: { productId: string }) {
     const d = useShopData();
     const fx = useFx(d?.settings);
     const add = useCart((s) => s.add);
-    const { data: bundles } = useLoad(() => { const o = ownStoreId(); return o ? api.bundles.list(o) : api.storefront.bundles(shopStore()); }, []);
+    const { data: rawBundles } = useLoad(() => { const o = ownStoreId(); return o ? api.bundles.list(o) : api.storefront.bundles(shopStore()); }, []);
+    const bundles = rawBundles?.map(normalizeBundle);
     if (!bundles || !d) return null;
     const relevant = bundles.filter((b) => visible(b) && b.items.some((i) => i.productId === productId));
     if (!relevant.length) return null;

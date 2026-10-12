@@ -2,7 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { api } from "../../api";
 import { useSeo } from "../../lib/seo";
 import { useT } from "../../lib/fx";
-import { ownStoreId } from "../../lib/shop";
+import { ownStoreId, shopStore } from "../../lib/shop";
 import { useLoad } from "../../lib/useLoad";
 import { Loading } from "../../components/polaris";
 import type { Post } from "../../types";
@@ -12,13 +12,13 @@ const isLive = (p: Post, kind: "post" | "page") =>
     ((p as Partial<Post>).type ?? "post") === kind && ((p as Partial<Post>).published ?? true);
 export default function Blog() {
     const t = useT();
-    const { data } = useLoad(() => { const o = ownStoreId(); return o ? api.posts.list(o) : Promise.resolve([]); }, []);
+    const { data } = useLoad(() => { const o = ownStoreId(); return o ? api.posts.list(o) : api.storefront.posts(shopStore()); }, []);
     if (!data) return <Loading />;
     const posts = data.filter((p) => isLive(p, "post")).sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
     return (
         <>
             <h2>{t("Blog")}</h2>
-            {posts.map((p) => <Link key={p.id} to={`/shop/blog/${p.slug}`} className="card pcard" style={{ display: "block" }}><b>{p.title}</b><div className="mu-t">{new Date(p.createdAt).toLocaleDateString()} · {p.body.slice(0, 100)}</div></Link>)}
+            {posts.map((p) => <Link key={p.id} to={`/shop/blog/${p.slug}`} className="card pcard" style={{ display: "block" }}><b>{p.title}</b><div className="mu-t">{p.createdAt ? `${new Date(p.createdAt).toLocaleDateString()} · ` : ""}{p.body.slice(0, 100)}</div></Link>)}
             {!posts.length && <p className="mu-t">{t("No posts yet.")}</p>}
         </>
     );
@@ -26,7 +26,7 @@ export default function Blog() {
 export function PostPage({ kind }: { kind: "post" | "page" }) {
     const t = useT();
     const { slug } = useParams();
-    const { data } = useLoad(() => { const o = ownStoreId(); return o ? api.posts.list(o) : Promise.resolve([]); }, []);
+    const { data } = useLoad(() => { const o = ownStoreId(); return o ? api.posts.list(o) : api.storefront.posts(shopStore()); }, []);
     const cur = data?.find((x) => isLive(x, kind) && x.slug === slug);
     useSeo(cur?.seoTitle || cur?.title, cur?.seoDesc || cur?.body.slice(0, 150));
     if (!data) return <Loading />;
