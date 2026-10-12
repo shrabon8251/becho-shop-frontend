@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api";
 import { HomeSections } from "../components/HomeSections";
-import { PageHeader, SaveBar, toast, Loading } from "../components/polaris";
+import { PageHeader, SaveBar, toast, Loading, Confirm } from "../components/polaris";
 import { useShopData } from "../lib/shop";
 import { FONTS, SECTION_DEFAULTS, SECTION_LABELS, THEMES, themeStyle } from "../lib/theme";
 import { useLoad } from "../lib/useLoad";
@@ -99,6 +99,12 @@ function Form({ initial, storeId }: { initial: Theme; storeId: string }) {
     const [open, setOpen] = useState<string | null>(null);
     const [mobile, setMobile] = useState(false);
     const [sample, setSample] = useState(false);
+    // Per-preset themes: each gallery preset keeps its own saved customization.
+    // Switching presets loads that preset's saved settings (never the factory
+    // default over your work). Ask first when there are unsaved edits.
+    const [confirmSwitch, setConfirmSwitch] = useState<string | null>(null);
+    const [confirmReset, setConfirmReset] = useState(false);
+    const [loadingPreset, setLoadingPreset] = useState<string | null>(null);
     // Merchant page: pass the merchant's own store id. useShopData()'s default
     // resolves the *public storefront* store (?store=/env), which is wrong here
     // and left the preview stuck on "Loading preview..." (wrong-store 404s).
@@ -108,7 +114,17 @@ function Form({ initial, storeId }: { initial: Theme; storeId: string }) {
     const set = (p: Partial<Theme>) => setT({ ...t, ...p });
     const upS = (id: string, p: Partial<ThemeSection>) => set({ sections: t.sections.map((x) => (x.id === id ? { ...x, ...p } : x)) });
     const mv = (i: number, dir: number) => { const a = [...t.sections], j = i + dir; if (j < 0 || j >= a.length) return; [a[i], a[j]] = [a[j], a[i]]; set({ sections: a }); };
-    const save = async () => { try { await api.theme.save(storeId, t); setBase(t); try { localStorage.setItem("theme-customized:" + storeId, "1"); } catch { /* ignore */ } toast(tr("Theme saved")); } catch (e) { toast((e as Error).message, true); } };
+    const save = async () => { try { await api.theme.save(storeId, t, t.template || undefined); setBase(t); try { localStorage.setItem("theme-customized:" + storeId, "1"); } catch { /* ignore */ } toast(tr("Theme saved")); } catch (e) { toast((e as Error).message, true); } };
+    // Load one gallery preset's saved customization (or its factory default when
+    // never customized). The previous preset's settings stay in its own row.
+    const switchPreset = async (presetId: string) => {
+        setLoadingPreset(presetId);
+        try {
+            const loaded = await api.theme.get(storeId, presetId);
+            setT(loaded); setBase(loaded);
+        } catch (e) { toast((e as Error).message, true); }
+        finally { setLoadingPreset(null); setConfirmSwitch(null); }
+    };
     const types = Object.keys(SECTION_LABELS) as ThemeSection["type"][];
     const name = t.logoText || d?.settings.storeName || "Shop";
     // Builder preview uses the store's real products. The toggle swaps in
@@ -125,13 +141,13 @@ function Form({ initial, storeId }: { initial: Theme; storeId: string }) {
                 <div className="tpanel">
                     <div className="card"><b>{tr("Theme settings")}</b>
                         <label>{tr("Theme gallery")}<div className="tgal">{THEMES.map((p) => (
-                            <button key={p.id} className={"tgal-c" + (t.template === p.id ? " on" : "")} onClick={() => set({ ...JSON.parse(JSON.stringify(p.theme)) })}>
+                            <button key={p.id} className={"tgal-c" + (t.template === p.id ? " on" : "")} disabled={loadingPreset !== null} onClick={() => { if (p.id === t.template && !dirty) return; if (dirty) setConfirmSwitch(p.id); else void switchPreset(p.id); }}>
                                 <span className="tgal-pv" style={{ background: `linear-gradient(135deg, ${p.theme.color}, #222)` }} />
                                 <b>{tr(p.name)}</b><span className="mu-t">{tr(p.desc)}</span>
                                 {t.template === p.id && <span className="badge">{tr("Active")}</span>}
                             </button>))}
                         </div></label>
-                        <div className="row"><button className="btn s" onClick={() => set({ ...JSON.parse(JSON.stringify(THEMES[0].theme)) })}>{tr("Reset to default")}</button></div>
+                        <div className="row"><button className="btn s" onClick={() => setConfirmReset(true)}>{tr("Reset to default")}</button></div>
                         <label>{tr("Brand color")}<input type="color" value={t.color} onChange={(e) => set({ color: e.target.value })} style={{ height: 38, padding: 2 }} /></label>
                         <label>{tr("Font")}<select value={t.font} onChange={(e) => set({ font: e.target.value as Theme["font"] })}>{(Object.keys(FONTS) as Theme["font"][]).map((f) => <option key={f}>{f}</option>)}</select></label>
                         <label>{tr("Corner radius")} ({t.radius}px)<input type="range" min={0} max={24} value={t.radius} onChange={(e) => set({ radius: +e.target.value })} /></label>
@@ -194,6 +210,16 @@ function Form({ initial, storeId }: { initial: Theme; storeId: string }) {
                 </div>
             </div>
             <SaveBar dirty={dirty} onSave={() => void save()} onDiscard={() => setT(base)} />
+            {confirmSwitch && <Confirm open title={tr("Switch theme?")}
+                                       message={tr("You have unsaved changes. Switching themes will discard them.")}
+                                       confirmLabel={tr("Discard and switch")}
+                                       onClose={() => setConfirmSwitch(null)}
+                                       onConfirm={() => void switchPreset(confirmSwitch)} />}
+            {confirmReset && <Confirm open title={tr("Reset to default?")}
+                                      message={tr("Your customizations for this theme will be replaced by the factory default. This cannot be undone.")}
+                                      confirmLabel={tr("Reset")}
+                                      onClose={() => setConfirmReset(false)}
+                                      onConfirm={() => { const preset = THEMES.find((x) => x.id === t.template) ?? THEMES[0]; set({ ...JSON.parse(JSON.stringify(preset.theme)) }); setConfirmReset(false); }} />}
         </>
     );
 }

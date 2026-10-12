@@ -400,7 +400,7 @@ export function httpApi(base: string): Api {
                 list: () => req("/platform/announcements"),
                 create: (input) => req("/platform/announcements", "POST", input),
                 update: (id, patch) => req(`/platform/announcements/${id}`, "PATCH", patch),
-                remove: (id) => req(`/platform/announcements/${id}`, "DELETE"),
+                remove: (id) => req(`/platform/announcements/${id}e`, "DELETE"),
             },
             landing: {
                 get: () => req("/platform/landing"),
@@ -418,7 +418,13 @@ export function httpApi(base: string): Api {
             demoCallback: () => Promise.reject(new Error("Demo gateway is only available in demo mode")),
         },
         pos: { sale: (s, input) => req(`/stores/${s}/pos/sales`, "POST", input) },
-        theme: { get: (s) => req<unknown>(`/stores/${s}/theme`).then(normalizeTheme), save: (s, t) => req(`/stores/${s}/theme`, "PUT", t) },
+        // Per-preset theme settings: pass the gallery preset id so each preset keeps
+        // its own saved customization on the backend (switching presets no longer
+        // wipes the previous one). The param is optional — old callers keep working.
+        theme: {
+            get: (s, presetKey?: string) => req<unknown>(`/stores/${s}/theme${presetKey ? `?presetKey=${encodeURIComponent(presetKey)}` : ""}`).then(normalizeTheme),
+            save: (s, t, presetKey?: string) => req(`/stores/${s}/theme${presetKey ? `?presetKey=${encodeURIComponent(presetKey)}` : ""}`, "PUT", t),
+        },
         apps: { get: (s) => req(`/stores/${s}/apps`).then(normalizeApps), save: (s, c) => req(`/stores/${s}/apps`, "PUT", c) },
         reviews: crud("reviews"),
         posts: crud("posts"),

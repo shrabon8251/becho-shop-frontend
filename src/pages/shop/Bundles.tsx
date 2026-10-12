@@ -7,6 +7,10 @@ import { useCart } from "../../store/cart";
 import { Loading } from "../../components/polaris";
 import type { Bundle } from "../../types";
 
+// The public storefront API returns a reduced bundle shape without `active` —
+// the backend only serves active bundles publicly, so a missing flag means visible.
+const visible = (b: Bundle) => (b as Partial<Bundle>).active ?? true;
+
 export default function Bundles() {
     const d = useShopData();
     const fx = useFx(d?.settings);
@@ -16,7 +20,7 @@ export default function Bundles() {
     useSeo(t("Bundles"), undefined, d?.settings.storeName);
     if (!d || !bundles) return <Loading />;
     const idx = variantIndex(d.products);
-    const list = bundles.filter((b) => b.active);
+    const list = bundles.filter(visible);
     const itemLabel = (b: Bundle) => b.items.map((it) => {
         const vid = it.variantId ?? d.products.find((p) => p.id === it.productId)?.variants[0]?.id;
         const r = vid ? idx.get(vid) : undefined;
@@ -64,7 +68,7 @@ export function BundleBox({ productId }: { productId: string }) {
     const add = useCart((s) => s.add);
     const { data: bundles } = useLoad(() => { const o = ownStoreId(); return o ? api.bundles.list(o) : api.storefront.bundles(shopStore()); }, []);
     if (!bundles || !d) return null;
-    const relevant = bundles.filter((b) => b.active && b.items.some((i) => i.productId === productId));
+    const relevant = bundles.filter((b) => visible(b) && b.items.some((i) => i.productId === productId));
     if (!relevant.length) return null;
     return (
         <div className="card bundle-box">
