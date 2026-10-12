@@ -93,7 +93,7 @@ export function useShopData(storeId?: string): ShopData | null {
             api.storefront.theme(sid),
             api.storefront.apps(sid),
             // Public shipping profiles for checkout (no auth needed).
-            fetch(`/stores/${sid}/shippingProfiles/public`).then((r) => r.ok ? r.json() : []).catch(() => []),
+            fetch(`${import.meta.env.VITE_API_URL}/stores/${sid}/shippingProfiles/public`).then((r) => r.ok ? r.json() : []).catch(() => []),
         ]);
         // Resilience: never throw — one failed call shouldn't blank the whole page.
         const failed: string[] = [];
