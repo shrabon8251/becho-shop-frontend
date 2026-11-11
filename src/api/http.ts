@@ -373,6 +373,10 @@ export function httpApi(base: string): Api {
             list: (s) => req<unknown[]>(`/stores/${s}/customers`).then((cs) => cs.map(normalizeCustomer)),
             save: (s, x) => req<unknown>(`/stores/${s}/customers/${x.id}`, "PUT", x).then(normalizeCustomer),
             remove: (s, id) => req(`/stores/${s}/customers/${id}`, "DELETE"),
+            count: (s) => req<{ count: number }>(`/stores/${s}/customers/count`),
+        },
+        analytics: {
+            get: (s, range) => req(`/stores/${s}/analytics?range=${range}`),
         },
         campaigns: crud("campaigns"),
         giftCards: {
@@ -484,6 +488,7 @@ export function httpApi(base: string): Api {
         // Public storefront endpoints (no JWT, rate-limited). For anonymous shoppers.
         // NOTE: backend serves these under /api/storefront/... (PublicStorefrontController).
         storefront: {
+            store: (s) => req(`/api/storefront/stores/${s}`),
             products: (s) => req<unknown[]>(`/api/storefront/stores/${s}/products`).then((ps) => ps.map(normalizeProduct)),
             product: (s, id) => req<unknown>(`/api/storefront/stores/${s}/products/${id}`).then(normalizeProduct),
             settings: (s) => req(`/api/storefront/stores/${s}/settings`).then(normalizeSettings),

@@ -163,42 +163,26 @@ function Hero() {
     const nav = useNavigate();
     const [email, setEmail] = useState("");
     const go = (e: React.FormEvent) => { e.preventDefault(); nav(email.includes("@") ? `/signup?email=${encodeURIComponent(email)}` : "/signup"); };
-    const bars = [42, 68, 50, 80, 62, 92, 74, 100, 66, 86, 58, 78];
     return (
         <header className="bx-hero">
-            <div className="bx-blob b1" /><div className="bx-blob b2" /><div className="bx-blob b3" />
             <div className="bx-wrap bx-hero-in">
-                <Reveal d="d1"><h1 className="bx-h1">{c.hero.title}<br /><span className="gr anim">{c.hero.titleAccent}</span></h1></Reveal>
-                <Reveal d="d2"><p className="bx-sub">{c.hero.subtitle}</p></Reveal>
-                <Reveal d="d3">
-                    <form className="bx-hero-cta" onSubmit={go}>
-                        <div className="bx-email"><input type="email" placeholder={t("Enter your email")} value={email} onChange={(e) => setEmail(e.target.value)} aria-label={t("Email")} /><button className="bx-btn shine" type="submit">{c.hero.cta}</button></div>
-                    </form>
-                    <p className="bx-note">{c.hero.note} · <Link to="/preview/minimal" className="bx-demo-link">{t("or explore a live demo")} →</Link></p>
-                </Reveal>
-                <Reveal d="d3">
-                    <div style={{ position: "relative", maxWidth: 960, margin: "0 auto" }}>
-                        <div className="bx-float-card bx-fc1"><span className="ic" style={{ background: "linear-gradient(135deg,#10b981,#0ea5e9)" }}>🧾</span><span>{t("New order")} #1042<small>2 {t("minutes ago")}</small></span></div>
-                        <div className="bx-float-card bx-fc2"><span className="ic" style={{ background: "var(--bx-grad)" }}>▲</span><span>+{t("৳")}12,400<small>{t("today vs yesterday")}</small></span></div>
-                        <div className="bx-dash" aria-hidden>
-                            <div className="bx-chrome"><i /><i /><i /><span>becho.com/admin</span><em className="bx-live-tag"><span className="live-dot" />{t("LIVE")}</em></div>
-                            <div className="bx-dash-body">
-                                <div className="bx-side"><i className="on" /><i /><i /><i /><i /><i /></div>
-                                <div className="bx-main">
-                                    <div className="bx-kpis">
-                                        <div className="bx-kpi"><small>{t("Revenue")}</small><b>{t("৳")}284k</b><em>+18%</em></div>
-                                        <div className="bx-kpi"><small>{t("Orders")}</small><b>1,042</b><em>+12%</em></div>
-                                        <div className="bx-kpi"><small>{t("Visitors")}</small><b>28.4k</b><em>+24%</em></div>
-                                    </div>
-                                    <div className="bx-dash-row">
-                                        <div className="bx-chart">{bars.map((h, i) => <div key={i} className="bx-bar" style={{ height: `${h}%`, animationDelay: `${i * 0.06}s` }} />)}</div>
-                                        <LiveFeed />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <div className="bx-hero-split">
+                    <div className="bx-hero-copy">
+                        <Reveal d="d1"><h1 className="bx-h1">{c.hero.title}<br /><span className="gr anim">{c.hero.titleAccent}</span></h1></Reveal>
+                        <Reveal d="d2"><p className="bx-sub">{c.hero.subtitle}</p></Reveal>
+                        <Reveal d="d3">
+                            <form className="bx-hero-cta" onSubmit={go}>
+                                <div className="bx-email"><input type="email" placeholder={t("Enter your email")} value={email} onChange={(e) => setEmail(e.target.value)} aria-label={t("Email")} /><button className="bx-btn shine" type="submit">{c.hero.cta}</button></div>
+                            </form>
+                            <p className="bx-note">{c.hero.note} · <Link to="/preview/minimal" className="bx-demo-link">{t("or explore a live demo")} →</Link></p>
+                        </Reveal>
                     </div>
-                </Reveal>
+                    <Reveal d="d3">
+                        <div className="bx-hero-photo-wrap">
+                            <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&q=80&auto=format&fit=crop" alt="Real retail store" className="bx-hero-photo" />
+                        </div>
+                    </Reveal>
+                </div>
                 <Reveal>
                     <div className="bx-stats">
                         <div className="bx-stat"><b><CountUp to={10} suffix="+" /></b><span>{t("designer themes")}</span></div>
@@ -226,7 +210,7 @@ function Marquee() {
 function Features() {
     const t = useT();
     const c = useLanding();
-    const BGS = ["linear-gradient(135deg,#6c4cf1,#b44dff)", "linear-gradient(135deg,#0ea5e9,#6c4cf1)", "linear-gradient(135deg,#f59e0b,#ff6b4a)", "linear-gradient(135deg,#10b981,#0ea5e9)", "linear-gradient(135deg,#ec4899,#b44dff)", "linear-gradient(135deg,#8b5cf6,#6366f1)"];
+    const BGS = ["#17172e", "#17172e", "#17172e", "#17172e", "#17172e", "#17172e"];
     return (
         <section className="bx-sec" id="features"><div className="bx-wrap">
             <Reveal><span className="bx-kicker">{t("Everything included")}</span>
@@ -517,6 +501,41 @@ function Footer() {
     );
 }
 
+
+function DashboardPreview() {
+    const t = useT();
+    const bars = [42, 68, 50, 80, 62, 92, 74, 100, 66, 86, 58, 78];
+    return (
+        <section className="bx-dash-sec">
+            <div className="bx-wrap">
+                <Reveal d="d3">
+                    <div style={{ position: "relative", maxWidth: 960, margin: "0 auto" }}>
+                        <div className="bx-float-card bx-fc1"><span className="ic" style={{ background: "linear-gradient(135deg,#10b981,#0ea5e9)" }}>🧾</span><span>{t("New order")} #1042<small>2 {t("minutes ago")}</small></span></div>
+                        <div className="bx-float-card bx-fc2"><span className="ic" style={{ background: "var(--bx-grad)" }}>▲</span><span>+{t("৳")}12,400<small>{t("today vs yesterday")}</small></span></div>
+                        <div className="bx-dash" aria-hidden>
+                            <div className="bx-chrome"><i /><i /><i /><span>becho.com/admin</span><em className="bx-live-tag"><span className="live-dot" />{t("LIVE")}</em></div>
+                            <div className="bx-dash-body">
+                                <div className="bx-side"><i className="on" /><i /><i /><i /><i /><i /></div>
+                                <div className="bx-main">
+                                    <div className="bx-kpis">
+                                        <div className="bx-kpi"><small>{t("Revenue")}</small><b>{t("৳")}284k</b><em>+18%</em></div>
+                                        <div className="bx-kpi"><small>{t("Orders")}</small><b>1,042</b><em>+12%</em></div>
+                                        <div className="bx-kpi"><small>{t("Visitors")}</small><b>28.4k</b><em>+24%</em></div>
+                                    </div>
+                                    <div className="bx-dash-row">
+                                        <div className="bx-chart">{bars.map((h, i) => <div key={i} className="bx-bar" style={{ height: `${h}%`, animationDelay: `${i * 0.06}s` }} />)}</div>
+                                        <LiveFeed />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Reveal>
+            </div>
+        </section>
+    );
+}
+
 export default function Landing() {
     const t = useT();
     const [dk, setDk] = useState(() => { try { return localStorage.getItem("bx-theme") === "dark"; } catch { return false; } });
@@ -529,6 +548,7 @@ export default function Landing() {
                 {c.announcement.on && <div className="bx-announce">{c.announcement.text}</div>}
                 <Nav dk={dk} onToggleDk={toggleDk} />
                 <Hero />
+                <DashboardPreview />
                 <Marquee />
                 <Features />
                 <PayStrip />

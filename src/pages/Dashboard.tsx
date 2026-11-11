@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api";
-import { LineChart, Spark } from "../components/charts";
+import { BarChart, DonutChart, LineChart, Spark } from "../components/charts";
 import { Loading } from "../components/polaris";
 import { Badge, Card } from "../components/ui";
 import { calc, taxOpts } from "../lib/calc";
@@ -45,16 +45,18 @@ function greeting(t: (s: string) => string) {
     if (h < 17) return t("Good afternoon");
     return t("Good evening");
 }
-const METRIC_ICONS = ["💰", "📦", "🧾", "⏳"];
+const METRIC_ICONS = ["💰", "📦", "🧾", "⏳", "👥", "📈"];
 export default function Dashboard() {
     const t = useT();
     const user = useAuth((s) => s.user);
     const storeId = user!.storeId!;
-    const { data } = useLoad(() => Promise.all([api.orders.list(storeId), api.products.list(storeId), api.settings.get(storeId), api.discounts.list(storeId), api.meta.announcements()]), [storeId]);
+    const { data } = useLoad(() => Promise.all([api.orders.list(storeId), api.products.list(storeId), api.settings.get(storeId), api.discounts.list(storeId), api.meta.announcements(), api.customers.count(storeId)]), [storeId]);
     const [range, setRange] = useState(7);
+    // Analytics (visitors + conversion) reloads when the date range changes.
+    const { data: analytics } = useLoad(() => api.analytics.get(storeId, range), [storeId, range]);
     const [dismissed, setDismissed] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem("dismissed-ann") ?? "[]"); } catch { return []; } });
     if (!data) return <Loading />;
-    const [orders, products, settings, discounts, anns] = data;
+    const [orders, products, settings, discounts, anns, custCount] = data;
     const visible = anns.filter((a) => !dismissed.includes(a.id));
     const dismiss = (id: string) => { const next = [...dismissed, id]; setDismissed(next); try { localStorage.setItem("dismissed-ann", JSON.stringify(next)); } catch { /* ignore */ } };
     const cur = settings.currency, prices = priceMap(products), idx = variantIndex(products);
@@ -72,11 +74,19 @@ export default function Dashboard() {
     const top = new Map<string, number>();
     for (const o of orders) if (isPaid(o) && o.createdAt >= start) for (const i of o.items) { const r = idx.get(i.variantId); if (r) top.set(r.p.title, (top.get(r.p.title) ?? 0) + r.v.price * i.qty); }
     const Delta = ({ d }: { d: number | null }) => (d === null ? <span className="mu-t">–</span> : <span className={d >= 0 ? "ok-t" : "er-t"}>{d >= 0 ? "▲" : "▼"} {Math.abs(d).toFixed(0)}%</span>);
+    // Payment-status donut: counts from the same period, no new API call.
+    const payCounts = new Map<string, number>();
+    for (const o of orders) if (o.createdAt >= start && o.pay !== "Cancelled") payCounts.set(o.pay, (payCounts.get(o.pay) ?? 0) + 1);
+    const payDonut = [...payCounts.entries()].map(([label, value]) => ({ label, value }));
+    const topEntries = [...top.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
+    const topMax = Math.max(1, ...topEntries.map(([, v]) => v));
     const metrics: { k: string; v: string; d?: number | null; s?: number[]; to?: string; icon: string }[] = [
         { k: t("Total sales"), v: money(sales, cur), d: delta(sales, sum(prev, "sales")), s: now.map((x) => x.sales), icon: METRIC_ICONS[0] },
         { k: t("Orders"), v: String(cnt), d: delta(cnt, sum(prev, "orders")), s: now.map((x) => x.orders), icon: METRIC_ICONS[1] },
         { k: t("Average order value"), v: money(paidN ? sales / paidN : 0, cur), icon: METRIC_ICONS[2] },
         { k: t("To fulfill"), v: String(toFulfill), to: "/admin/orders", icon: METRIC_ICONS[3] },
+        { k: t("Total Customers"), v: String(custCount?.count ?? 0), to: "/admin/customers", icon: METRIC_ICONS[4] },
+        { k: t("Conversion Rate"), v: !analytics ? "…" : analytics.conversionRate == null ? "–" : analytics.conversionRate.toFixed(2) + "%", d: analytics?.conversionRate != null && analytics?.prevConversionRate != null ? delta(analytics.conversionRate, analytics.prevConversionRate) : undefined, icon: METRIC_ICONS[5] },
     ];
     const firstName = (user?.name || user?.email || "").split(" ")[0].split("@")[0];
     const todayStr = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
@@ -121,8 +131,14 @@ export default function Dashboard() {
             <div className="dash-main">
                 <div className="dash-left">
                     <Card><b>{t("Total sales over time")}</b><LineChart points={now.map((d) => d.sales)} labels={now.map((d) => d.label)} fmt={(n) => money(n, cur)} /></Card>
+                    <div className="dash-charts">
+                        <Card><b>{t("Orders per day")}</b><BarChart points={now.map((d) => d.orders)} labels={now.map((d) => d.label)} /></Card>
+                        <Card><b>{t("Payment status")}</b>{payDonut.length ? <DonutChart data={payDonut} /> : <p className="mu-t">{t("No orders yet.")}</p>}</Card>
+                    </div>
                     <div className="two">
-                        <Card><b>{t("Top products")}</b>{top.size ? <table style={{ marginTop: 8 }}><tbody>{[...top.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([n, v]) => <tr key={n}><td>{n}</td><td style={{ textAlign: "right" }}>{money(v, cur)}</td></tr>)}</tbody></table> : <p className="mu-t">{t("No paid orders in this period.")}</p>}</Card>
+                        <Card><b>{t("Top products")}</b>{topEntries.length ? <div className="topbar-list">{topEntries.map(([n, v]) => (
+                            <div className="topbar-row" key={n}><span>{n}</span><span style={{ whiteSpace: "nowrap" }}>{money(v, cur)}</span><div className="topbar-bar" style={{ gridColumn: "1 / -1" }}><div style={{ width: (v / topMax * 100) + "%" }} /></div></div>
+                        ))}</div> : <p className="mu-t">{t("No paid orders in this period.")}</p>}</Card>
                         <Card><div className="between"><b>{t("Recent orders")}</b><Link to="/admin/orders">{t("View all")}</Link></div>{orders.length ? <table style={{ marginTop: 8 }}><tbody>{[...orders].reverse().slice(0, 5).map((o) => (
                             <tr key={o.id}><td><Link to={`/admin/orders/${o.id}`}>#{o.id}</Link></td><td>{money(tot(o), cur)}</td><td><Badge t={o.pay} /></td></tr>))}</tbody></table> : <p className="mu-t">{t("No orders yet.")}</p>}</Card>
                     </div>

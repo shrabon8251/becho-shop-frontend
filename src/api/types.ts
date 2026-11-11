@@ -1,4 +1,4 @@
-import type { Announcement, Ticket, GiftCard, EmailTemplate, PlanPrices, User, TrackedOrder, PosSaleInput, AppsConfig, Post, Review, Theme, Campaign, Payout, StaffMember, NewStore, Store, StoreRow, CheckoutInput, CheckoutOrderInput, CheckoutOrderResult, PaymentIntentResult, Settings, Collection, Customer, Discount, Order, Product, Location, StockLevel, StockTransfer, DraftOrder, OrderReturn, ReturnItem, CustomerSegment, Automation, AbandonedCheckout, StockAlert, Domain, DeliveryProfile, LoyaltySettings, Bundle, Redirect, Webhook, ApiKey, ActivityEntry, PayMethod } from "../types";
+import type { Announcement, Ticket, GiftCard, EmailTemplate, PlanPrices, User, TrackedOrder, PosSaleInput, AppsConfig, Post, Review, Theme, Campaign, Payout, StaffMember, NewStore, Store, StoreRow, CheckoutInput, CheckoutOrderInput, CheckoutOrderResult, PaymentIntentResult, Settings, Collection, Customer, Discount, Order, Product, Location, StockLevel, StockTransfer, DraftOrder, OrderReturn, ReturnItem, CustomerSegment, Automation, AbandonedCheckout, StockAlert, Domain, DeliveryProfile, LoyaltySettings, Bundle, Redirect, Webhook, ApiKey, ActivityEntry, PayMethod, PublicStore, AnalyticsSummary } from "../types";
 /**
  * API CONTRACT — the single source of truth for the backend.
  *
@@ -73,7 +73,9 @@ export interface Api {
     contact: {
         send(input: { name: string; email: string; subject?: string; message: string }): Promise<{ id: number }>;
     };
-    customers: Crud<Customer>;
+    customers: Crud<Customer> & { count(storeId: string): Promise<{ count: number }> };
+    /** Merchant analytics for the dashboard: visitors + conversion rate. */
+    analytics: { get(storeId: string, range: number): Promise<AnalyticsSummary> };
     campaigns: Crud<Campaign>;
     giftCards: Crud<GiftCard> & { check(storeId: string, code: string): Promise<{ balance: number }> }; // apply/deduct balance server-side in orders.create
     emailTemplates: { list(storeId: string): Promise<EmailTemplate[]>; save(storeId: string, t: EmailTemplate): Promise<EmailTemplate> }; // sending is done by your backend
@@ -184,6 +186,7 @@ export interface Api {
     };
     /** Public storefront endpoints (no JWT). For anonymous shoppers. */
     storefront: {
+        store(storeId: string): Promise<PublicStore>;
         products(storeId: string): Promise<Product[]>;
         product(storeId: string, id: string): Promise<Product>;
         settings(storeId: string): Promise<Settings>;

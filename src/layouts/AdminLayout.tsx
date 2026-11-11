@@ -142,10 +142,10 @@ export default function AdminLayout({ store, reload }: StoreCtx) {
             <ToastHost />
             <header className="top">
                 <button className="burger" aria-label="Menu" aria-expanded={menu} onClick={() => setMenu(!menu)}>☰</button>
-                <div className="brand"><i />shop</div>
                 {noBackend && <span className="pill" style={{ background: "#fee2e2", color: "#991b1b", fontWeight: 700 }} title={t("No backend connected — set VITE_API_URL")}>⚠️ {t("No backend")}</span>}
                 <CommandPalette items={allowed.flatMap((n) => (n.children ? n.children : [n])).map((n) => ({ to: n.to, label: n.label }))} />
                 <select className="mini-select" aria-label={t("Language")} value={lang} onChange={(e) => setLang(e.target.value as "en" | "bn")}><option value="en">EN</option><option value="bn">বাংলা</option></select>
+                <Bell />
                 <ThemeToggle />
                 <div className="me-wrap" style={{ position: "relative" }}>
                     <button className="me" onClick={() => setProfileOpen(!profileOpen)} style={{ cursor: "pointer", background: "none", border: "none" }}>
@@ -156,17 +156,17 @@ export default function AdminLayout({ store, reload }: StoreCtx) {
                             <div style={{ position: "fixed", inset: 0, zIndex: 99 }} onClick={() => setProfileOpen(false)} />
                             <div className="profile-menu" style={{
                                 position: "absolute", top: "100%", right: 0, zIndex: 100,
-                                background: "white", border: "1px solid #e5e7eb", borderRadius: 8,
+                                background: "var(--card)", border: "1px solid var(--bd)", borderRadius: 8,
                                 boxShadow: "0 4px 12px rgba(0,0,0,0.15)", minWidth: 200, padding: 8
                             }}>
-                                <div style={{ padding: "8px 12px", borderBottom: "1px solid #e5e7eb", marginBottom: 4 }}>
+                                <div style={{ padding: "8px 12px", borderBottom: "1px solid var(--bd)", marginBottom: 4 }}>
                                     <div style={{ fontWeight: 600 }}>{user?.name || user?.email}</div>
-                                    <div style={{ fontSize: 12, color: "#6b7280" }}>{user?.email}</div>
+                                    <div style={{ fontSize: 12, color: "var(--mu)" }}>{user?.email}</div>
                                 </div>
                                 <button className="nav" style={{ width: "100%", textAlign: "left" }} onClick={() => { setProfileOpen(false); nav("/admin/settings"); }}>⚙️ {t("Store settings")}</button>
                                 <button className="nav" style={{ width: "100%", textAlign: "left" }} onClick={() => { setProfileOpen(false); nav("/admin/settings"); }}>📞 {t("Change phone")}</button>
                                 <button className="nav" style={{ width: "100%", textAlign: "left" }} onClick={() => { setProfileOpen(false); nav("/admin/settings"); }}>🔑 {t("Change password")}</button>
-                                <div style={{ borderTop: "1px solid #e5e7eb", marginTop: 4, paddingTop: 4 }}>
+                                <div style={{ borderTop: "1px solid var(--bd)", marginTop: 4, paddingTop: 4 }}>
                                     <button className="nav" style={{ width: "100%", textAlign: "left" }} onClick={logout}>🚪 {t("Log out")}</button>
                                 </div>
                             </div>
@@ -177,6 +177,13 @@ export default function AdminLayout({ store, reload }: StoreCtx) {
             <div className="body">
                 {menu && <div className="scrim" onClick={() => setMenu(false)} />}
                 <aside className={"side" + (menu ? " open" : "")}>
+                    {/* Shop logo at the sidebar top (approved mockup) — store
+                        initials in the violet mark; no uploaded-logo field
+                        exists in Store, so a real logo image is not invented. */}
+                    <NavLink to="/admin" className="shop-brand">
+                        <span className="shop-brand-mark">{store.logoUrl ? <img src={store.logoUrl} alt={store.name} /> : store.name.slice(0, 2).toUpperCase()}</span>
+                        <span><span className="shop-brand-name">{store.name}</span><br /><span className="shop-brand-sub">Shop</span></span>
+                    </NavLink>
                     {allowed.map((n) => n.children ? (
                         <div key={n.label}>
                             <button className={"nav grp" + (n.children.some((c) => isActive(c.to)) ? " has-on" : "")}
@@ -200,7 +207,6 @@ export default function AdminLayout({ store, reload }: StoreCtx) {
                 </aside>
                 <main>
                     {user.impersonatedBy && <div className="card trial">{t("Support session")}: {store.name}. <button className="btn s" onClick={exitImpersonation}>{t("Exit")}</button></div>}
-                    <Bell />
                     {store.status === "Trial" && <div className="card trial">{t("Free trial")}: {trialDaysLeft(store)} {t("days left on the")} {store.plan} {t("plan")}.</div>}
                     {store.status === "Active" && store.planExpiresAt && paidDaysLeft(store) <= 7 && (
                         <div className="card trial">{store.plan} {t("plan")}: {paidDaysLeft(store)} {t("days left")} · <NavLink to="/admin/billing">{t("Renew now")}</NavLink></div>

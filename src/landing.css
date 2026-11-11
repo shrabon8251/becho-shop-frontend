@@ -10,9 +10,10 @@
     --bx-tx: #17172e;
     --bx-mu: #5b5b7a;
     --bx-line: #e9e9f5;
-    --bx-grad: linear-gradient(120deg, #6c4cf1, #b44dff 52%, #ff6b4a);
-    --bx-shadow: 0 24px 70px -24px rgba(108, 76, 241, .45);
-    --bx-r: 20px;
+    --bx-grad: #6c4cf1;
+    --bx-accent-soft: #ede9fe;
+    --bx-shadow: 0 8px 24px -8px rgba(10, 10, 28, .18);
+    --bx-r: 12px;
     --bx-card: #ffffff;
 }
 /* announcement bar (super admin controlled) */
@@ -56,8 +57,8 @@ html { scroll-behavior: smooth; }
 .bx-burger { display: none; background: none; border: 0; color: #fff; font-size: 26px; cursor: pointer; }
 
 /* ---------- buttons ---------- */
-.bx-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--bx-grad); color: #fff; border: 0; border-radius: 99px; padding: 15px 30px; font-size: 16px; font-weight: 700; cursor: pointer; text-decoration: none; box-shadow: var(--bx-shadow); transition: transform .18s, box-shadow .18s, filter .18s; white-space: nowrap; }
-.bx-btn:hover { transform: translateY(-2px); filter: brightness(1.06); box-shadow: 0 30px 80px -20px rgba(180, 77, 255, .6); }
+.bx-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--bx-grad); color: #fff; border: 0; border-radius: 12px; padding: 15px 30px; font-size: 16px; font-weight: 700; cursor: pointer; text-decoration: none; box-shadow: var(--bx-shadow); transition: transform .18s, box-shadow .18s, filter .18s; white-space: nowrap; }
+.bx-btn:hover { transform: none; filter: brightness(1.08); box-shadow: var(--bx-shadow); }
 .bx-btn.sm { padding: 11px 22px; font-size: 14.5px; }
 .bx-btn.ghost { background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .22); box-shadow: none; }
 .bx-btn.ghost:hover { background: rgba(255, 255, 255, .14); box-shadow: none; }
@@ -65,8 +66,8 @@ html { scroll-behavior: smooth; }
 
 /* ---------- hero ---------- */
 .bx-hero { position: relative; background: var(--bx-ink); color: #fff; padding: 168px 0 90px; overflow: hidden; }
-.bx-hero::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(255, 255, 255, .045) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .045) 1px, transparent 1px); background-size: 56px 56px; mask-image: radial-gradient(ellipse 90% 70% at 50% 30%, #000 30%, transparent 75%); }
-.bx-blob { position: absolute; border-radius: 50%; filter: blur(110px); opacity: .55; animation: bx-float 14s ease-in-out infinite alternate; pointer-events: none; }
+.bx-hero::before { content: none; }
+.bx-blob { display: none; position: absolute; border-radius: 50%; filter: blur(110px); opacity: .55; animation: bx-float 14s ease-in-out infinite alternate; pointer-events: none; }
 .bx-blob.b1 { width: 560px; height: 560px; background: #6c4cf1; top: -180px; left: -120px; }
 .bx-blob.b2 { width: 480px; height: 480px; background: #b44dff; top: -80px; right: -140px; animation-delay: -5s; opacity: .4; }
 .bx-blob.b3 { width: 420px; height: 420px; background: #ff6b4a; bottom: -220px; left: 38%; animation-delay: -9s; opacity: .28; }
@@ -719,3 +720,90 @@ html { scroll-behavior: smooth; }
 @keyframes bx-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(124,58,237,.3); } 50% { box-shadow: 0 0 0 6px rgba(124,58,237,0); } }
 .bx-loading-step.done { color: #16a34a; }
 .bx-loading-step.done .bx-loading-dot { background: #dcfce7; color: #16a34a; }
+
+/* ===== Phase 1.1 — no AI-look overrides (2026-11-01) ===== */
+/* Single solid accent everywhere; no rainbow gradient, no shine, no blobs. */
+.bx-btn.shine::after { content: none; animation: none; }
+.bx-h1 .gr { background: none; -webkit-background-clip: initial; background-clip: initial; color: #c7c2ff; }
+.bx-h1 .gr.anim { background: none; animation: none; color: #c7c2ff; }
+.bx-logo-mark { background: #6c4cf1; box-shadow: none; }
+.bx-dash { transform: none; box-shadow: 0 12px 32px -12px rgba(0, 0, 0, .45); }
+.bx-bar { background: #6c4cf1; }
+.bx-bar:nth-child(odd) { background: #8b7cff; }
+.bx-side i.on { background: #6c4cf1; }
+.bx-plan.pop { background: var(--bx-card); border: 2px solid #6c4cf1; }
+.bx-cta { background: var(--bx-ink); }
+.bx-cta::before { content: none; }
+.bx-kicker { background: none; -webkit-background-clip: initial; background-clip: initial; color: #6c4cf1; }
+.bx-faq summary::after { background: none; -webkit-background-clip: initial; background-clip: initial; color: #6c4cf1; }
+.bx-step .n { background: #6c4cf1; }
+.bx-ava { background: #6c4cf1; }
+.bx-test::before { content: none; }
+.bx-step::after { content: none; }
+
+/* ===== Phase 1.1A — Option A isometric shop hero (2026-11-01) ===== */
+/* Lightweight CSS 3D sway, no heavy 3D library. Cards stay inside the hero, so no mobile overflow. */
+.bx-iso { position: relative; max-width: 960px; margin: 0 auto; }
+.bx-iso-scene { animation: bx-iso-sway 9s ease-in-out infinite alternate; transform-origin: center bottom; }
+@keyframes bx-iso-sway { from { transform: perspective(1000px) rotateY(-5deg); } to { transform: perspective(1000px) rotateY(5deg); } }
+.bx-iso-scene svg { width: 100%; height: auto; display: block; }
+.bx-iso-live { position: absolute; top: 12px; right: 16px; }
+.bx-iso-card { position: absolute; background: #fff; color: #17172e; border-radius: 12px; padding: 10px 14px; font-size: 13px; box-shadow: 0 16px 40px -12px rgba(0, 0, 0, .5); animation: bx-hover 5s ease-in-out infinite alternate; z-index: 2; }
+.bx-iso-card b { display: block; font-weight: 700; }
+.bx-iso-card span { display: block; font-size: 12px; color: #5b5b7a; margin-top: 2px; }
+.bx-iso-c1 { top: 14%; left: 0; }
+.bx-iso-c2 { top: 24%; right: 0; animation-delay: -2s; }
+.bx-iso-c3 { bottom: 26%; left: 2%; animation-delay: -1s; }
+.bx-iso-c4 { bottom: 16%; right: 2%; animation-delay: -3s; }
+.bx-iso-feed { max-width: 420px; margin: 20px auto 0; }
+@media (max-width: 700px) { .bx-iso-card { display: none; } .bx-iso-scene { animation: none; } }
+
+/* ===== Phase 1.1B — fixed isometric shop (2026-11-01) ===== */
+/* FIX for 1.1A overlap: cards are now inside scene-wrap only, feed is separate below with a gap. */
+.bx-iso-scene-wrap { position: relative; }
+.bx-iso-feed { max-width: 420px; margin: 32px auto 0; clear: both; }
+.bx-iso-card { box-shadow: 0 20px 44px -12px rgba(0, 0, 0, .55); }
+.bx-iso-c1 { top: 8%; left: 0; }
+.bx-iso-c2 { top: 16%; right: 0; }
+.bx-iso-c3 { bottom: 10%; left: 2%; }
+.bx-iso-c4 { bottom: 6%; right: 2%; }
+
+/* ===== Phase 1.1C — image-style split hero (2026-11-01) ===== */
+/* Left text, right angled isometric shop, dark violet cards — like Md's reference image. */
+.bx-hero-split { display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: center; text-align: left; }
+.bx-hero-copy .bx-h1, .bx-hero-copy .bx-sub { text-align: left; }
+.bx-hero-copy .bx-hero-cta { justify-content: flex-start; }
+.bx-hero-copy .bx-note { text-align: left; }
+.bx-iso { max-width: none; }
+.bx-iso-scene { animation: none; }
+.bx-iso-card { background: #17172e; color: #fff; border: 1px solid #6c4cf1; box-shadow: 0 20px 44px -12px rgba(108, 76, 241, .55); }
+.bx-iso-card span { color: #c7c2ff; }
+.bx-iso-c1 { top: 6%; right: 0; left: auto; }
+.bx-iso-c2 { top: 42%; left: 0; right: auto; }
+.bx-iso-c3 { top: 36%; right: 0; left: auto; }
+.bx-iso-c4 { bottom: 4%; right: 2%; left: auto; }
+.bx-iso-cart { position: absolute; bottom: 22%; right: 6%; font-size: 44px; color: #8b7cff; filter: drop-shadow(0 12px 24px rgba(108, 76, 241, .5)); animation: bx-hover 5s ease-in-out infinite alternate; z-index: 2; }
+.bx-iso-feed { max-width: 420px; margin: 32px auto 0; clear: both; }
+@media (max-width: 900px) {
+    .bx-hero-split { grid-template-columns: 1fr; text-align: center; }
+    .bx-hero-copy .bx-h1, .bx-hero-copy .bx-sub, .bx-hero-copy .bx-note { text-align: center; }
+    .bx-hero-copy .bx-hero-cta { justify-content: center; }
+    .bx-iso-cart { display: none; }
+}
+
+/* ===== Phase 1.1D — exact reference image hero (2026-11-01) ===== */
+/* No more SVG approximation: right side is Md's own reference shop image, cropped to the shop+cards area. */
+.bx-iso-img { width: 100%; height: auto; display: block; border-radius: 12px; animation: bx-iso-sway 9s ease-in-out infinite alternate; transform-origin: center bottom; }
+@media (max-width: 700px) { .bx-iso-img { animation: none; } }
+
+/* ===== Phase 1.1H — clean front-facing shop (2026-11-01) ===== */
+/* No cube, no image: sign + striped scalloped awning + two glass windows with shelves. Cards at four corners, no overlap. */
+.bx-iso-c1 { top: 8%; left: 0; right: auto; }
+.bx-iso-c2 { top: 18%; right: 0; left: auto; }
+.bx-iso-c3 { bottom: 18%; left: 0; right: auto; }
+.bx-iso-c4 { bottom: 8%; right: 0; left: auto; }
+
+/* ===== Phase 1.1I — real photo hero + dashboard below (2026-11-01) ===== */
+.bx-hero-photo-wrap { position: relative; }
+.bx-hero-photo { width: 100%; height: auto; display: block; border-radius: 16px; box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .5); object-fit: cover; aspect-ratio: 4 / 3; }
+.bx-dash-sec { background: var(--bx-ink); padding: 10px 0 60px; }

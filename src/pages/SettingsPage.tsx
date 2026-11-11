@@ -46,6 +46,8 @@ function Form({ initial, storeId }: { initial: Settings; storeId: string }) {
     const [s, setS] = useState(initial);
     const [sec, setSec] = useState<(typeof SECTIONS)[number]>("General");
     const [err, setErr] = useState("");
+    const [logoBusy, setLogoBusy] = useState(false);
+    const { store, reload } = useOutletContext<StoreCtx>();
     const [zn, setZn] = useState({ name: "", rate: "" });
     const [newCur, setNewCur] = useState({ code: "", rate: "" });
     const { data: extra } = useLoad(() => Promise.all([api.domains.list(storeId), api.locations.list(storeId)]), [storeId]);
@@ -74,6 +76,25 @@ function Form({ initial, storeId }: { initial: Settings; storeId: string }) {
                 <div>
                     {sec === "General" && <Card><b>{t("Store details")}</b>
                         <label>{t("Store name")}<input value={s.storeName} onChange={(e) => set({ storeName: e.target.value })} /></label>
+                        <label>{t("Shop logo")}
+                            {store.logoUrl ? <img src={store.logoUrl} alt={store.name} style={{ width: 64, height: 64, objectFit: "cover", borderRadius: 12, display: "block", margin: "6px 0" }} /> : null}
+                            <input type="file" accept="image/*" disabled={logoBusy} onChange={async (e) => {
+                                const f = e.target.files?.[0]; if (!f) return;
+                                // Check size before uploading: the server rejects
+                                // anything over 5MB, so fail fast with a clear message.
+                                if (f.size > 5 * 1024 * 1024) { setErr(t("Logo must be 5MB or smaller")); e.target.value = ""; return; }
+                                setLogoBusy(true);
+                                try { const url = await api.uploads.image(storeId, f); await api.stores.update(storeId, { logoUrl: url }); reload(); toast(t("Logo updated")); }
+                                catch (err) { setErr((err as Error).message); }
+                                finally { setLogoBusy(false); e.target.value = ""; }
+                            }} />
+                            {store.logoUrl ? <button type="button" className="btn s" disabled={logoBusy} onClick={async () => {
+                                setLogoBusy(true);
+                                try { await api.stores.update(storeId, { logoUrl: "" }); reload(); toast(t("Logo removed")); }
+                                catch (err) { setErr((err as Error).message); }
+                                finally { setLogoBusy(false); }
+                            }}>{t("Remove logo")}</button> : null}
+                            <span className="mu-t">{t("PNG or JPG, up to 5MB. Shown at the top of the sidebar.")}</span></label>
                         <label>{t("Store description for search engines")}<input maxLength={160} value={s.seoDescription ?? ""} onChange={(e) => set({ seoDescription: e.target.value })} /></label>
                         <label>{t("Store currency")}<select value={s.currency} onChange={(e) => set({ currency: e.target.value })}>{["USD", "BDT", "EUR", "GBP"].map((c) => <option key={c}>{c}</option>)}</select></label></Card>}
                     {sec === "Languages" && <Card><b>{t("Languages")}</b>

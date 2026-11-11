@@ -1,5 +1,5 @@
 import { api } from "../api";
-import type { AppsConfig, DeliveryProfile, Discount, Product, Settings, Theme, Variant } from "../types";
+import type { AppsConfig, DeliveryProfile, Discount, Product, PublicStore, Settings, Theme, Variant } from "../types";
 import { useLoad } from "./useLoad";
 /**
  * Storefront store id.
@@ -55,6 +55,8 @@ export interface ShopData {
     theme: Theme;
     apps: AppsConfig;
     profiles: DeliveryProfile[];
+    /** Public store card (name + uploaded logo) for the header; null when it fails to load. */
+    store: PublicStore | null;
     /** Non-critical endpoints that failed to load; "" when everything loaded. */
     error: string;
 }
@@ -86,7 +88,7 @@ const APPS_OFF: AppsConfig = {
 export function useShopData(storeId?: string): ShopData | null {
     const sid = storeId ?? shopStore();
     const { data } = useLoad(async (): Promise<ShopData> => {
-        const [pr, se, di, th, ap, sp] = await Promise.allSettled([
+        const [pr, se, di, th, ap, sp, st] = await Promise.allSettled([
             api.storefront.products(sid),
             api.storefront.settings(sid),
             api.storefront.discounts(sid),
@@ -94,6 +96,7 @@ export function useShopData(storeId?: string): ShopData | null {
             api.storefront.apps(sid),
             // Public shipping profiles for checkout (no auth needed).
             fetch(`${import.meta.env.VITE_API_URL}/stores/${sid}/shippingProfiles/public`).then((r) => r.ok ? r.json() : []).catch(() => []),
+            api.storefront.store(sid),
         ]);
         // Resilience: never throw — one failed call shouldn't blank the whole page.
         const failed: string[] = [];
@@ -112,6 +115,7 @@ export function useShopData(storeId?: string): ShopData | null {
             discounts: grab(di, [], "discounts"),
             apps: grab(ap, APPS_OFF, "apps"),
             profiles: grab(sp, [], "shipping"),
+            store: grab(st, null as PublicStore | null, "store"),
             error: failed.length ? `Some store data failed to load (${failed.join(", ")}).` : "",
         };
     }, [sid]);

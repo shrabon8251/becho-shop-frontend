@@ -11,7 +11,7 @@ import { CartDrawer } from "../../components/CartDrawer";
 import { NewsletterPopup } from "../../components/NewsletterPopup";
 import { LiveChatBubble } from "../../components/apps/LiveChatBubble";
 import { useCart } from "../../store/cart";
-import { initTracking, trackEvent } from "../../lib/tracking";
+import { initTracking, trackEvent, trackVisit } from "../../lib/tracking";
 function SearchBox({ products, fx, base }: { products: { id: string; title: string; images: string[]; variants: { price: number }[] }[]; fx: { fmt(n: number): string }; base: string }) {
     const t = useT();
     const nav = useNavigate();
@@ -62,6 +62,8 @@ export default function ShopLayout() {
     useEffect(() => {
         if (d?.settings) { initTracking(d.settings.tracking); trackEvent("PageView"); }
     }, [d?.settings.tracking]);
+    // Visitor beacon for the dashboard Conversion Rate card (once per day).
+    useEffect(() => { trackVisit(shopStore()); }, []);
     const toggleDark = () => { const v = !dark; setDark(v); try { localStorage.setItem("shop-dark", v ? "1" : "0"); } catch { /* noop */ } };
     const pages = (posts ?? []).filter((p) => p.type === "page" && p.published);
     const currencies = d ? Array.from(new Set([d.settings.currency, ...Object.keys(d.settings.rates ?? {})])) : [];
@@ -74,7 +76,7 @@ export default function ShopLayout() {
             ))}
             <header className="shead sara-h">
                 <div className="sara-h-main">
-                    <Link to={base} className="logo sara-logo">{d?.theme.logoText || d?.settings.storeName || "Shop"}</Link>
+                    <Link to={base} className="logo sara-logo">{d?.store?.logoUrl ? <img src={d.store.logoUrl} alt={d.store.name} /> : (d?.theme.logoText || d?.settings.storeName || "Shop")}</Link>
                     {d && <SearchBox products={d.products} fx={fx} base={base} />}
                     <div className="sara-h-icons">
                         <button className="iconbtn" aria-label={t("Toggle dark mode")} onClick={toggleDark}>{dark ? "☀️" : "🌙"}</button>
@@ -126,7 +128,7 @@ export default function ShopLayout() {
             <footer className="sfoot sara-f">
                 <div className="fcols">
                     <div className="fbrand">
-                        <b className="flogo">{d?.theme.logoText || d?.settings.storeName || "Shop"}</b>
+                        <b className="flogo">{d?.store?.logoUrl ? <img src={d.store.logoUrl} alt={d.store.name} /> : (d?.theme.logoText || d?.settings.storeName || "Shop")}</b>
                         <p className="mu-t">{d?.settings.seoDescription || t("Quality products, delivered to your door.")}</p>
                         <div className="fsocial"><span aria-label="Facebook">f</span><span aria-label="Instagram">◎</span><span aria-label="YouTube">▶</span><span aria-label="TikTok">♪</span></div>
                     </div>

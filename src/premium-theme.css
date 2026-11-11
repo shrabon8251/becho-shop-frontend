@@ -1,72 +1,207 @@
 /* ============================================================
-   Becho Premium Polish — refines the Shopify Polaris look.
+   Becho Premium Polish — admin layout + dashboard, Phase 1.2 + 1.3.
    Pure CSS. Import after styles.css. No logic changes.
-   Keeps the green accent; adds depth, motion, refinement.
-   Dark mode: set data-theme="dark" on <html>.
+   Phase 1.2: full-width admin, shop brand at the sidebar top, bell +
+   sun/moon toggle in the topbar, 4 dashboard charts.
+   Phase 1.3: the sun/moon toggle is replaced by a colour picker with
+   ALL 10 admin themes (Light, Black + 8 gradients from the reel).
+   Rule, as approved from the mockups: a gradient theme paints the WHOLE
+   page background with the gradient; cards are a darker glass shade of
+   the same gradient with white text — no white page, no white cards.
+   Theme is set by data-admin-theme on <html> (see lib/adminThemes.ts);
+   data-theme="dark"/"light" is kept alongside for compatibility.
    ============================================================ */
 
+/* ---------- Tokens: Light theme (default) ---------- */
 :root {
-    --bg: #f4f5f7;
+    --page-bg: #f2f2f7;
+    --bg: #f2f2f7;
     --card: #ffffff;
+    --top-bg: #ffffff;
+    --side-bg: #ffffff;
     --tx: #1a1a1a;
     --mu: #5c5f62;
     --bd: #e1e3e5;
-    --ac: #008060;
-    --ac-hover: #006e52;
-    --ac-soft: #e3f2ed;
-    --ok: #008060;
+    --ac: #6c4cf1;
+    --ac-hover: #5a3de0;
+    --ac-soft: #efebff;
+    --gold: #c9a227;
+    --ok: #059669;
     --er: #d72c0d;
     --warn: #b98900;
-    --focus: #008060;
+    --focus: #6c4cf1;
     --shadow: 0 1px 2px rgba(26, 26, 26, .06), 0 4px 16px -8px rgba(26, 26, 26, .1);
-    --shadow-lg: 0 2px 4px rgba(26, 26, 26, .08), 0 12px 32px -12px rgba(0, 128, 96, .18);
+    --shadow-lg: 0 2px 4px rgba(26, 26, 26, .08), 0 12px 32px -12px rgba(108, 76, 241, .25);
     --radius: 12px;
 }
 
-[data-theme="dark"] {
-    --bg: #111113;
-    --card: #1c1c1f;
-    --tx: #e8e8ea;
-    --mu: #9a9aa3;
-    --bd: #2e2e33;
-    --ac: #00a47c;
-    --ac-hover: #00b889;
-    --ac-soft: #123b32;
-    --ok: #00c389;
+/* ---------- Tokens: Black theme, layered ---------- */
+[data-admin-theme="black"] {
+    --page-bg: #08080c;
+    --bg: #08080c;
+    --card: #1c1c24;
+    --top-bg: #0f0f14;
+    --side-bg: #121218;
+    --tx: #f2f2f5;
+    --mu: #a3a3b0;
+    --bd: #2a2a34;
+    --ac: #8b7bff;
+    --ac-hover: #9d8fff;
+    --ac-soft: #262640;
+    --gold: #f0b429;
+    --ok: #34d399;
     --er: #ff6b5e;
     --warn: #ffbe33;
-    --focus: #00a47c;
+    --focus: #8b7bff;
     --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 4px 16px -8px rgba(0, 0, 0, .5);
-    --shadow-lg: 0 2px 8px rgba(0, 0, 0, .5), 0 12px 32px -12px rgba(0, 164, 124, .2);
+    --shadow-lg: 0 2px 8px rgba(0, 0, 0, .5), 0 12px 32px -12px rgba(108, 76, 241, .35);
 }
+
+/* ---------- Gradient themes: whole page = gradient, cards = darker glass ----------
+   --bg is the solid/glass tone used by search inputs, table headers and
+   small tracks; --card is the glass panel tone. Both are dark so white
+   text stays readable on every gradient. These blocks come AFTER the
+   Black block so they win when data-theme="dark" is also set. */
+[data-admin-theme="deep-wine"] {
+    --page-bg: linear-gradient(135deg, #3a1519, #651e24);
+    --bg: rgba(0, 0, 0, .25); --card: rgba(0, 0, 0, .30);
+    --top-bg: rgba(0, 0, 0, .32); --side-bg: rgba(0, 0, 0, .28);
+    --tx: #ffffff; --mu: rgba(255, 255, 255, .72); --bd: rgba(255, 255, 255, .16);
+    --ac: #ff5c7a; --ac-hover: #ff7a93; --ac-soft: rgba(255, 255, 255, .14);
+    --gold: #f0b429; --ok: #34d399; --er: #ff6b5e; --warn: #ffbe33; --focus: #ff5c7a;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 4px 16px -8px rgba(0, 0, 0, .5);
+    --shadow-lg: 0 2px 8px rgba(0, 0, 0, .5), 0 12px 32px -12px rgba(0, 0, 0, .45);
+}
+[data-admin-theme="dark-navy"] {
+    --page-bg: linear-gradient(135deg, #362722, #54413a);
+    --bg: rgba(0, 0, 0, .25); --card: rgba(0, 0, 0, .30);
+    --top-bg: rgba(0, 0, 0, .32); --side-bg: rgba(0, 0, 0, .28);
+    --tx: #ffffff; --mu: rgba(255, 255, 255, .72); --bd: rgba(255, 255, 255, .16);
+    --ac: #e0a458; --ac-hover: #eab876; --ac-soft: rgba(255, 255, 255, .14);
+    --gold: #7fb3d5; --ok: #34d399; --er: #ff6b5e; --warn: #ffbe33; --focus: #e0a458;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 4px 16px -8px rgba(0, 0, 0, .5);
+    --shadow-lg: 0 2px 8px rgba(0, 0, 0, .5), 0 12px 32px -12px rgba(0, 0, 0, .45);
+}
+[data-admin-theme="midnight-blue"] {
+    --page-bg: linear-gradient(135deg, #000443, #0130f6);
+    --bg: rgba(0, 0, 0, .25); --card: rgba(0, 0, 0, .30);
+    --top-bg: rgba(0, 0, 0, .32); --side-bg: rgba(0, 0, 0, .28);
+    --tx: #ffffff; --mu: rgba(255, 255, 255, .72); --bd: rgba(255, 255, 255, .16);
+    --ac: #3b82f6; --ac-hover: #5b9bff; --ac-soft: rgba(255, 255, 255, .14);
+    --gold: #22d3ee; --ok: #34d399; --er: #ff6b5e; --warn: #ffbe33; --focus: #3b82f6;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 4px 16px -8px rgba(0, 0, 0, .5);
+    --shadow-lg: 0 2px 8px rgba(0, 0, 0, .5), 0 12px 32px -12px rgba(0, 0, 0, .45);
+}
+[data-admin-theme="oceanic"] {
+    --page-bg: linear-gradient(135deg, #013d5b, #0d7552);
+    --bg: rgba(0, 0, 0, .25); --card: rgba(0, 0, 0, .30);
+    --top-bg: rgba(0, 0, 0, .32); --side-bg: rgba(0, 0, 0, .28);
+    --tx: #ffffff; --mu: rgba(255, 255, 255, .72); --bd: rgba(255, 255, 255, .16);
+    --ac: #14b8a6; --ac-hover: #2dd4bf; --ac-soft: rgba(255, 255, 255, .14);
+    --gold: #a3e635; --ok: #34d399; --er: #ff6b5e; --warn: #ffbe33; --focus: #14b8a6;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 4px 16px -8px rgba(0, 0, 0, .5);
+    --shadow-lg: 0 2px 8px rgba(0, 0, 0, .5), 0 12px 32px -12px rgba(0, 0, 0, .45);
+}
+[data-admin-theme="black-cherry"] {
+    --page-bg: linear-gradient(135deg, #2b0013, #651025);
+    --bg: rgba(0, 0, 0, .25); --card: rgba(0, 0, 0, .30);
+    --top-bg: rgba(0, 0, 0, .32); --side-bg: rgba(0, 0, 0, .28);
+    --tx: #ffffff; --mu: rgba(255, 255, 255, .72); --bd: rgba(255, 255, 255, .16);
+    --ac: #ec4899; --ac-hover: #f06bab; --ac-soft: rgba(255, 255, 255, .14);
+    --gold: #f59e0b; --ok: #34d399; --er: #ff6b5e; --warn: #ffbe33; --focus: #ec4899;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 4px 16px -8px rgba(0, 0, 0, .5);
+    --shadow-lg: 0 2px 8px rgba(0, 0, 0, .5), 0 12px 32px -12px rgba(0, 0, 0, .45);
+}
+[data-admin-theme="deep-coffee"] {
+    --page-bg: linear-gradient(135deg, #251603, #b84512);
+    --bg: rgba(0, 0, 0, .25); --card: rgba(0, 0, 0, .30);
+    --top-bg: rgba(0, 0, 0, .32); --side-bg: rgba(0, 0, 0, .28);
+    --tx: #ffffff; --mu: rgba(255, 255, 255, .72); --bd: rgba(255, 255, 255, .16);
+    --ac: #f97316; --ac-hover: #fb923c; --ac-soft: rgba(255, 255, 255, .14);
+    --gold: #fbbf24; --ok: #34d399; --er: #ff6b5e; --warn: #ffbe33; --focus: #f97316;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 4px 16px -8px rgba(0, 0, 0, .5);
+    --shadow-lg: 0 2px 8px rgba(0, 0, 0, .5), 0 12px 32px -12px rgba(0, 0, 0, .45);
+}
+[data-admin-theme="jade-green"] {
+    /* Light end (#98bec1) gets a dark overlay so white text stays readable. */
+    --page-bg: linear-gradient(135deg, rgba(0, 0, 0, .28), rgba(0, 0, 0, .05)), linear-gradient(135deg, #0b7350, #98bec1);
+    --bg: rgba(0, 0, 0, .25); --card: rgba(0, 0, 0, .30);
+    --top-bg: rgba(0, 0, 0, .32); --side-bg: rgba(0, 0, 0, .28);
+    --tx: #ffffff; --mu: rgba(255, 255, 255, .72); --bd: rgba(255, 255, 255, .16);
+    --ac: #2dd4bf; --ac-hover: #5eead4; --ac-soft: rgba(255, 255, 255, .14);
+    --gold: #f0b429; --ok: #34d399; --er: #ff6b5e; --warn: #ffbe33; --focus: #2dd4bf;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 4px 16px -8px rgba(0, 0, 0, .5);
+    --shadow-lg: 0 2px 8px rgba(0, 0, 0, .5), 0 12px 32px -12px rgba(0, 0, 0, .45);
+}
+[data-admin-theme="electric-royal"] {
+    /* Light start (#77a7ff) gets a dark overlay so white text stays readable. */
+    --page-bg: linear-gradient(135deg, rgba(0, 0, 0, .22), rgba(0, 0, 0, .05)), linear-gradient(135deg, #77a7ff, #2848fa);
+    --bg: rgba(0, 0, 0, .25); --card: rgba(0, 0, 0, .30);
+    --top-bg: rgba(0, 0, 0, .32); --side-bg: rgba(0, 0, 0, .28);
+    --tx: #ffffff; --mu: rgba(255, 255, 255, .72); --bd: rgba(255, 255, 255, .16);
+    --ac: #5b8cff; --ac-hover: #7aa5ff; --ac-soft: rgba(255, 255, 255, .14);
+    --gold: #f0b429; --ok: #34d399; --er: #ff6b5e; --warn: #ffbe33; --focus: #5b8cff;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 4px 16px -8px rgba(0, 0, 0, .5);
+    --shadow-lg: 0 2px 8px rgba(0, 0, 0, .5), 0 12px 32px -12px rgba(0, 0, 0, .45);
+}
+
+/* Page background comes from --page-bg (gradient for gradient themes). */
+body { background: var(--page-bg); background-attachment: fixed; }
 
 body, .card, .btn, .nav, table, input, select, textarea, .top, .side {
     transition: background-color .25s ease, color .25s ease,
     border-color .25s ease, box-shadow .25s ease;
 }
 
+/* ---------- Admin shell: full width, no 1040px centre cap ---------- */
+main { max-width: none; margin: 0; padding: 24px 32px 48px; }
+@media (max-width: 800px) { main { padding: 16px; } }
+
 /* ---------- Top bar ---------- */
 .top {
-    box-shadow: 0 1px 0 rgba(0,0,0,.15), 0 4px 16px -8px rgba(0,0,0,.3);
+    background: var(--top-bg);
+    color: var(--tx);
+    border-bottom: 1px solid var(--bd);
+    box-shadow: 0 1px 0 rgba(0,0,0,.06);
 }
-.brand i {
-    background: linear-gradient(135deg, #95bf47, #5c9430);
-    box-shadow: 0 2px 8px -2px rgba(149, 191, 71, .5);
-}
+.top .search { background: var(--bg); border-color: var(--bd); color: var(--tx); }
+.top .search::placeholder { color: var(--mu); }
+.top .me { background: var(--bg); color: var(--tx); }
+.top .me b { background: var(--ac); color: #fff; }
+.top .mini-select { background: var(--bg); color: var(--tx); border: 1px solid var(--bd); border-radius: 8px; }
+.top .mini-select option { background: var(--card); color: var(--tx); }
+.top .mu-t { color: var(--mu); }
+.top .burger { color: var(--tx); }
 
-/* ---------- Sidebar ---------- */
-.side { background: #eceef1; }
-[data-theme="dark"] .side { background: #161619; }
+/* ---------- Sidebar + shop brand at its top ----------
+   The shop's own name + its logo mark live here — never the Becho wordmark.
+   The mark shows the store name's first 2 letters: the Store type has no
+   uploaded-logo image field yet, so a real image logo needs a backend /
+   settings field first (later work, not this batch). */
+.side { background: var(--side-bg); border-right: 1px solid var(--bd); }
+.shop-brand {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 10px 12px; margin-bottom: 8px;
+    border-bottom: 1px solid var(--bd); text-decoration: none; color: var(--tx);
+}
+.shop-brand-mark {
+    width: 36px; height: 36px; flex: none; border-radius: 10px;
+    display: grid; place-items: center; font-weight: 800; font-size: 14px;
+    background: var(--ac); color: #fff; overflow: hidden;
+}
+/* Uploaded shop logo: fills the mark; initials show when no logo yet. */
+.shop-brand-mark img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.shop-brand-name { font-weight: 750; font-size: 14px; line-height: 1.2; }
+.shop-brand-sub { font-size: 11px; color: var(--mu); text-transform: uppercase; letter-spacing: .06em; }
 .nav { border-radius: 10px; font-weight: 500; }
-.nav:hover { background: rgba(0, 0, 0, .05); transform: translateX(2px); }
-[data-theme="dark"] .nav:hover { background: rgba(255, 255, 255, .06); }
+.nav:hover { background: var(--ac-soft); }
 .nav.on {
-    background: var(--card);
+    background: var(--ac);
+    color: #fff;
     font-weight: 650;
     box-shadow: var(--shadow);
-    color: var(--ac);
 }
-.nav.on svg { opacity: 1; stroke: var(--ac); }
+.nav.on svg { opacity: 1; stroke: #fff; }
 
 /* ---------- Cards ---------- */
 .card {
@@ -107,16 +242,33 @@ body, .card, .btn, .nav, table, input, select, textarea, .top, .side {
     background: var(--ac-hover);
     filter: none;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px -2px rgba(0, 128, 96, .4);
+    box-shadow: 0 4px 12px -2px rgba(108, 76, 241, .4);
 }
 .btn:active { transform: translateY(0); box-shadow: 0 1px 2px rgba(0,0,0,.15); }
 .btn.s {
     background: var(--card);
+    color: var(--tx);
     box-shadow: inset 0 0 0 1px var(--bd);
 }
 .btn.s:hover { background: var(--ac-soft); box-shadow: inset 0 0 0 1px var(--ac); }
 .btn.danger { background: #d72c0d; }
 .btn.danger:hover { background: #b8250b; filter: none; }
+
+/* ---------- Selected tabs / segmented buttons (dark-mode bug fix) ----------
+   Root cause (styles.css): .tab.on and .seg .btn.on used a fixed light-grey
+   background (#e3e3e3) with color: var(--tx). In dark mode --tx is near-white,
+   so selected text was white-on-light-grey — invisible. Fix: selected state
+   is always the theme accent background + white text, in every theme. This
+   also covers every other ".btn.s on" tab (Apps, Billing, Analytics). */
+.tab { color: var(--mu); }
+.tab:hover { background: var(--ac-soft); color: var(--tx); }
+.tab.on { background: var(--ac); color: #fff; }
+.seg .btn.on, .btn.s.on {
+    background: var(--ac);
+    color: #fff;
+    box-shadow: inset 0 0 0 1px var(--ac);
+}
+.seg .btn.s.on:hover { background: var(--ac-hover); }
 
 /* ---------- Tables ---------- */
 th {
@@ -124,6 +276,7 @@ th {
     text-transform: uppercase;
     letter-spacing: .05em;
     padding: 12px 16px;
+    background: var(--bg);
 }
 td { padding: 12px 16px; }
 tbody tr:hover { background: var(--ac-soft); }
@@ -133,6 +286,8 @@ input, select, textarea {
     border-radius: 8px;
     border: 1.5px solid var(--bd);
     padding: 8px 12px;
+    background: var(--card);
+    color: var(--tx);
 }
 input:focus, select:focus, textarea:focus {
     outline: none;
@@ -143,24 +298,83 @@ input:focus, select:focus, textarea:focus {
 /* ---------- Badges ---------- */
 .badge { border-radius: 999px; font-weight: 600; padding: 3px 10px; }
 
-/* ---------- Theme toggle ---------- */
-.theme-toggle {
-    width: 36px; height: 36px;
-    border-radius: 10px;
-    display: grid; place-items: center;
-    background: rgba(255,255,255,.08);
-    border: 1px solid rgba(255,255,255,.12);
-    color: #fff;
-    cursor: pointer;
-    font-size: 16px;
-    transition: transform .2s ease, background-color .2s ease;
+/* ---------- Theme picker (Phase 1.3): replaces the sun/moon toggle ----------
+   Topbar button shows the current theme's gradient swatch + name; click
+   opens an animated popover with all 10 swatches. Picking one applies it
+   instantly (CSS variables switch) and saves it to localStorage. */
+.theme-picker-wrap { position: relative; flex: none; }
+.theme-picker-btn {
+    display: flex; align-items: center; gap: 8px;
+    height: 38px; padding: 4px 12px 4px 4px; border-radius: 999px;
+    background: var(--bg); border: 1px solid var(--bd);
+    color: var(--tx); cursor: pointer; font: inherit; font-size: 13px; font-weight: 600;
 }
-.theme-toggle:hover {
-    transform: scale(1.1) rotate(15deg);
-    background: rgba(255,255,255,.15);
+.theme-picker-btn:hover { border-color: var(--ac); }
+.theme-picker-swatch {
+    width: 28px; height: 28px; flex: none; border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, .6);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .3);
+}
+.theme-picker-drop {
+    position: absolute; top: calc(100% + 8px); right: 0; z-index: 100;
+    width: 264px; padding: 14px; margin: 0; text-align: left;
+    background: var(--card); color: var(--tx);
+    border: 1px solid var(--bd); border-radius: 14px; box-shadow: var(--shadow-lg);
+    animation: pickerPop .18s ease;
+}
+.theme-picker-drop h4 { margin: 0 0 2px; font-size: 14px; }
+.theme-picker-drop p { margin: 0 0 10px; font-size: 12px; color: var(--mu); }
+.theme-picker-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
+}
+.theme-swatch {
+    width: 100%; aspect-ratio: 1; border-radius: 50%; border: 0; padding: 0;
+    cursor: pointer; position: relative;
+    transition: transform .15s ease, box-shadow .15s ease;
+    animation: swatchIn .25s ease backwards;
+}
+.theme-swatch:hover { transform: scale(1.15); }
+.theme-swatch.on { box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--ac); }
+.theme-swatch.on::after {
+    content: "✓"; position: absolute; inset: 0; display: grid; place-items: center;
+    color: #fff; font-size: 13px; font-weight: 800; text-shadow: 0 1px 2px rgba(0, 0, 0, .6);
+}
+.theme-picker-current {
+    display: flex; align-items: center; gap: 8px; margin-top: 12px;
+    padding-top: 10px; border-top: 1px solid var(--bd); font-size: 12px; color: var(--mu);
+}
+.theme-picker-current b { color: var(--tx); }
+@keyframes pickerPop {
+    from { opacity: 0; transform: translateY(-6px) scale(.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes swatchIn {
+    from { opacity: 0; transform: scale(.6); }
+    to { opacity: 1; transform: scale(1); }
 }
 
-/* ---------- Dashboard redesign ---------- */
+/* ---------- Bell: topbar icon + badge + dropdown ---------- */
+.bell-wrap { position: relative; flex: none; }
+.bell-btn {
+    position: relative; width: 38px; height: 38px; border-radius: 10px;
+    display: grid; place-items: center; font-size: 18px;
+    background: var(--bg); border: 1px solid var(--bd); color: var(--tx); cursor: pointer;
+}
+.bell-btn:hover { border-color: var(--ac); }
+.bell-badge {
+    position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px;
+    padding: 0 4px; border-radius: 999px; display: grid; place-items: center;
+    background: #dc2626; color: #fff; font-size: 11px; font-weight: 700;
+}
+.bell-scrim { position: fixed; inset: 0; z-index: 99; }
+.bell-drop {
+    position: absolute; top: calc(100% + 8px); right: 0; z-index: 100;
+    width: min(360px, 90vw); margin: 0; text-align: left;
+}
+.bell-row { padding: 8px 0; gap: 12px; }
+.bell-row + .bell-row { border-top: 1px solid var(--bd); }
+
+/* ---------- Dashboard ---------- */
 .dash-welcome {
     display: flex; justify-content: space-between; align-items: flex-start;
     gap: 16px; margin-bottom: 20px; flex-wrap: wrap;
@@ -206,6 +420,17 @@ input:focus, select:focus, textarea:focus {
     display: grid; place-items: center; font-size: 12px;
 }
 .tl-item:hover .tl-ico { border-color: var(--ac); }
+/* Dashboard chart rows: 2 charts side by side, stack on narrow screens. */
+.dash-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+@media (max-width: 900px) { .dash-charts { grid-template-columns: 1fr; } }
+.donut-wrap { display: flex; align-items: center; gap: 16px; margin-top: 12px; flex-wrap: wrap; }
+.donut { width: 140px; height: 140px; flex: none; }
+.donut-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.donut-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+.topbar-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.topbar-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+.topbar-bar { height: 8px; border-radius: 99px; background: var(--bg); overflow: hidden; }
+.topbar-bar div { height: 100%; background: var(--ac); border-radius: 99px; }
 
 /* ---------- Command palette modal ---------- */
 .mback {
@@ -241,19 +466,10 @@ input:focus, select:focus, textarea:focus {
 @keyframes fadeIn { from { opacity: 0; } }
 @keyframes slideDown { from { opacity: 0; transform: translateY(-12px); } }
 
-/* Search button kbd — match dark header */
+/* Search button kbd */
 .cmd-k kbd {
-    background: rgba(255, 255, 255, .12);
-    border: 1px solid rgba(255, 255, 255, .15);
-    color: #e3e3e3;
+    background: var(--bg);
+    border: 1px solid var(--bd);
+    color: var(--mu);
 }
 .cmd-k:hover { border-color: var(--ac); }
-
-/* ---------- Header readability (dark top bar) ---------- */
-.top .mu-t { color: #b5b5b5; }
-.top .mini-select {
-    background: #303030; color: #e3e3e3;
-    border: 1px solid #4a4a4a; border-radius: 8px;
-}
-.top .mini-select option { background: #1a1a1a; color: #e3e3e3; }
-.cmd-k .mu-t { color: #b5b5b5; }

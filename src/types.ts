@@ -2,23 +2,23 @@ export type Role = "super" | "merchant";
 export type StaffRole = "Admin" | "Manager" | "Support";
 export interface User { id: string; name: string; email: string; role: Role; staffRole: StaffRole; storeId: string | null; impersonatedBy?: string; emailVerified?: boolean; phone?: string; phoneVerified?: boolean }
 export interface Variant {
-  id: string; name: string; price: number; sku: string; stock: number; compareAt?: number; // strikethrough MRP for sale badges
-  optionValues?: Record<string, string>; // e.g. { Size: "M", Color: "Red" } — filled by the variant matrix (Products 2.0)
-  image?: string; // per-variant image override
-  barcode?: string; weight?: number; // grams, used by shipping profiles
+    id: string; name: string; price: number; sku: string; stock: number; compareAt?: number; // strikethrough MRP for sale badges
+    optionValues?: Record<string, string>; // e.g. { Size: "M", Color: "Red" } — filled by the variant matrix (Products 2.0)
+    image?: string; // per-variant image override
+    barcode?: string; weight?: number; // grams, used by shipping profiles
 }
 export interface Metafield { key: string; value: string }
 export interface ProductOption { name: string; values: string[] } // e.g. { name: "Size", values: ["S","M","L"] } — drives the variant matrix
 export interface Product {
-  id: string; title: string; status: "Active" | "Draft"; collectionId: string; images: string[]; variants: Variant[]; seoTitle?: string; seoDesc?: string;
-  description?: string; vendor?: string; productType?: string; tags?: string[];
-  options?: ProductOption[]; // when present, variants are the cartesian product of these options
-  metafields?: Metafield[]; digital?: boolean; digitalFile?: string; // digital = downloadable product, no shipping
-  photo?: string; // real photo URL for demos (falls back to images[0] SVG on error)
-  taxExempt?: boolean; // when true, no tax is charged on this product's variants
-  video?: string; // optional product video URL (mp4), shown in the gallery
-  preorder?: boolean; // allow purchase even when all variants are out of stock
-  subscribable?: boolean; // customers can buy this on a recurring subscription plan
+    id: string; title: string; status: "Active" | "Draft"; collectionId: string; images: string[]; variants: Variant[]; seoTitle?: string; seoDesc?: string;
+    description?: string; vendor?: string; productType?: string; tags?: string[];
+    options?: ProductOption[]; // when present, variants are the cartesian product of these options
+    metafields?: Metafield[]; digital?: boolean; digitalFile?: string; // digital = downloadable product, no shipping
+    photo?: string; // real photo URL for demos (falls back to images[0] SVG on error)
+    taxExempt?: boolean; // when true, no tax is charged on this product's variants
+    video?: string; // optional product video URL (mp4), shown in the gallery
+    preorder?: boolean; // allow purchase even when all variants are out of stock
+    subscribable?: boolean; // customers can buy this on a recurring subscription plan
 }
 export interface Customer { id: string; name: string; email: string; phone?: string; notes?: string; addresses: string[]; wishlist?: string[]; tags?: string[]; points?: number; credit?: number; emailVerified?: boolean; phoneVerified?: boolean }
 export interface OrderItem { variantId: string; qty: number }
@@ -29,7 +29,11 @@ export interface Order { id: number; customerId: string; items: OrderItem[]; pay
 export type Plan = "Starter" | "Growth" | "Pro";
 export interface Invoice { id: string; date: number; plan: Plan; amount: number; status: "Paid" }
 export interface PayMethod { kind: "card" | "bkash" | "nagad" | "rocket" | "sslcommerz"; label: string; last4?: string; trxId?: string }
-export interface Store { id: string; name: string; sub: string; plan: Plan; status: "Active" | "Trial" | "Suspended"; currency: string; createdAt: number; gmv: number; card?: string; payMethod?: PayMethod; planExpiresAt?: number; invoices: Invoice[] }
+export interface Store { id: string; name: string; sub: string; plan: Plan; status: "Active" | "Trial" | "Suspended"; currency: string; createdAt: number; gmv: number; card?: string; payMethod?: PayMethod; planExpiresAt?: number; invoices: Invoice[]; logoUrl?: string | null }
+/** Public store card for the storefront header (GET /api/storefront/stores/{id}). */
+export interface PublicStore { id: string; name: string; subdomain: string; logoUrl?: string | null; currency: string }
+/** Merchant analytics for the dashboard (GET /stores/{id}/analytics?range=). Conversion = converted orders / unique visitors. Null rate = no visitors yet. */
+export interface AnalyticsSummary { rangeDays: number; visitors: number; paidOrders: number; conversionRate: number | null; prevVisitors: number; prevPaidOrders: number; prevConversionRate: number | null }
 export interface StoreRow extends Store { ownerEmail: string }
 export interface NewStore { name: string; sub: string; plan: Plan; currency: string; industry: string }
 export type CollectionKind = "manual" | "smart"; // smart = automated by conditions (defaults to "manual")
@@ -37,20 +41,20 @@ export interface CollectionCondition { field: "title" | "type" | "vendor" | "tag
 export interface Collection { id: string; name: string; kind?: CollectionKind; conditions?: CollectionCondition[]; matchAll?: boolean; productIds?: string[]; sort?: "manual" | "newest" | "price-asc" | "price-desc" | "alpha"; image?: string }
 export type DiscountKind = "code" | "automatic";
 export interface Discount {
-  id: string; code: string; type: "%" | "$"; value: number; active: boolean; used: number;
-  kind?: DiscountKind; // defaults to "code"
-  title?: string; // display name for automatic discounts
-  minimum?: number; // minimum subtotal to apply
-  usageLimit?: number; // max total uses; 0/undefined = unlimited
-  startsAt?: number; endsAt?: number;
-  buyQty?: number; getQty?: number; getPercent?: number; // buy-X-get-Y
-  freeShipping?: boolean;
+    id: string; code: string; type: "%" | "$"; value: number; active: boolean; used: number;
+    kind?: DiscountKind; // defaults to "code"
+    title?: string; // display name for automatic discounts
+    minimum?: number; // minimum subtotal to apply
+    usageLimit?: number; // max total uses; 0/undefined = unlimited
+    startsAt?: number; endsAt?: number;
+    buyQty?: number; getQty?: number; getPercent?: number; // buy-X-get-Y
+    freeShipping?: boolean;
 }
 export interface ShippingRate {
-  id: string; name: string; price: number;
-  minSubtotal?: number; maxSubtotal?: number; // order value conditions
-  minWeight?: number; maxWeight?: number; // kg conditions
-  carrier?: string; perKg?: number; // carrier-calculated: price = base + perKg * kg
+    id: string; name: string; price: number;
+    minSubtotal?: number; maxSubtotal?: number; // order value conditions
+    minWeight?: number; maxWeight?: number; // kg conditions
+    carrier?: string; perKg?: number; // carrier-calculated: price = base + perKg * kg
 }
 export interface ShippingZone { id: string; name: string; rate: number; rates?: ShippingRate[]; countries?: string; taxRegionId?: string; duties?: { collect: boolean; rate: number } }
 export interface TaxRegion { id: string; name: string; rate: number }
@@ -60,16 +64,16 @@ export interface Settings { storeName: string; currency: string; zones: Shipping
 export interface CheckoutInput { customer: { name: string; email: string; phone?: string }; items: OrderItem[]; zoneId: string; rateId?: string; code?: string; paymentMethod: string; giftCode?: string; note?: string; trxId?: string }
 /** Public checkout order request — mirrors POST /stores/{id}/checkout/orders. */
 export interface CheckoutOrderInput {
-  customer: { name: string; email: string; phone?: string };
-  items: { variantId: string | number; qty: number }[];
-  paymentMethod: string;
-  zoneId?: string; rateId?: string; code?: string; giftCode?: string; note?: string; trxId?: string;
+    customer: { name: string; email: string; phone?: string };
+    items: { variantId: string | number; qty: number }[];
+    paymentMethod: string;
+    zoneId?: string; rateId?: string; code?: string; giftCode?: string; note?: string; trxId?: string;
 }
 export interface CheckoutOrderResult {
-  id: number; orderNumber: string; totalMinor: number; currency: string; paymentMethod: string; status: string;
+    id: number; orderNumber: string; totalMinor: number; currency: string; paymentMethod: string; status: string;
 }
 export interface PaymentIntentResult {
-  redirectUrl: string; orderId: number; amountMinor: number; currency: string;
+    redirectUrl: string; orderId: number; amountMinor: number; currency: string;
 }
 export interface StaffMember { id: string; name: string; email: string; role: StaffRole; permissions?: string[] }
 export interface Campaign { id: string; name: string; channel: "Email" | "Social" | "Google Ads"; budget: number; spent: number; active: boolean; subject?: string; body?: string; audience?: string; audienceSegmentId?: string; status?: "Draft" | "Scheduled" | "Sent"; scheduledAt?: number; sentAt?: number; recipients?: number }
@@ -87,14 +91,14 @@ export interface Theme { name?: string; template?: string; color: string; font: 
 export interface InstaImage { src: string; productId?: string }
 export interface FaqItem { q: string; a: string }
 export interface AppsConfig {
-  bar: { on: boolean; text: string }; reviews: { on: boolean };
-  emailPopups: { on: boolean; title: string; text: string; delaySec: number; code: string };
-  liveChat: { on: boolean; welcome: string };
-  currency: { on: boolean };
-  instaFeed: { on: boolean; images: InstaImage[] };
-  faqPage: { on: boolean; items: FaqItem[] };
-  backInStock: { on: boolean };
-  installed?: string[];
+    bar: { on: boolean; text: string }; reviews: { on: boolean };
+    emailPopups: { on: boolean; title: string; text: string; delaySec: number; code: string };
+    liveChat: { on: boolean; welcome: string };
+    currency: { on: boolean };
+    instaFeed: { on: boolean; images: InstaImage[] };
+    faqPage: { on: boolean; items: FaqItem[] };
+    backInStock: { on: boolean };
+    installed?: string[];
 }
 export interface Review { id: string; productId: string; name: string; stars: number; text: string; createdAt: number }
 export interface Post { id: string; type: "post" | "page"; title: string; slug: string; body: string; published: boolean; createdAt: number; seoTitle?: string; seoDesc?: string }
@@ -135,14 +139,14 @@ export interface LandingFeature { icon: string; title: string; desc: string }
 export interface LandingTestimonial { name: string; role: string; text: string; rating: number }
 export interface LandingFaq { q: string; a: string }
 export interface LandingContent {
-  announcement: { on: boolean; text: string };
-  hero: { title: string; titleAccent: string; subtitle: string; cta: string; note: string };
-  features: LandingFeature[];
-  pricing: { starter: number; growth: number; pro: number; note: string };
-  themes: { visible: string[]; featured: string };
-  testimonials: LandingTestimonial[];
-  faq: LandingFaq[];
-  cta: { title: string; subtitle: string; button: string };
+    announcement: { on: boolean; text: string };
+    hero: { title: string; titleAccent: string; subtitle: string; cta: string; note: string };
+    features: LandingFeature[];
+    pricing: { starter: number; growth: number; pro: number; note: string };
+    themes: { visible: string[]; featured: string };
+    testimonials: LandingTestimonial[];
+    faq: LandingFaq[];
+    cta: { title: string; subtitle: string; button: string };
 }
 // ---- webhooks + API keys ----
 export interface Webhook { id: string; event: string; url: string; active: boolean }
