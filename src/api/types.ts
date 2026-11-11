@@ -1,4 +1,4 @@
-import type { Announcement, Ticket, GiftCard, EmailTemplate, PlanPrices, User, TrackedOrder, PosSaleInput, AppsConfig, Post, Review, Theme, Campaign, Payout, StaffMember, NewStore, Store, StoreRow, CheckoutInput, CheckoutOrderInput, CheckoutOrderResult, PaymentIntentResult, Settings, Collection, Customer, Discount, Order, Product, Location, StockLevel, StockTransfer, DraftOrder, OrderReturn, ReturnItem, CustomerSegment, Automation, AbandonedCheckout, StockAlert, Domain, DeliveryProfile, LoyaltySettings, Bundle, Redirect, Webhook, ApiKey, ActivityEntry, PayMethod, PublicStore, AnalyticsSummary } from "../types";
+import type { Announcement, Ticket, GiftCard, EmailTemplate, PlanPrices, User, TrackedOrder, PosSaleInput, AppsConfig, Post, Review, Theme, Campaign, Payout, StaffMember, NewStore, Store, StoreRow, CheckoutInput, CheckoutOrderInput, CheckoutOrderResult, PaymentIntentResult, ManualOrderInput, OrderPage, OrderListParams, OrderCounts, Settings, Collection, Customer, Discount, Order, Product, ProductCounts, ProductPage, ProductListParams, Location, StockLevel, StockTransfer, DraftOrder, OrderReturn, ReturnItem, CustomerSegment, Automation, AbandonedCheckout, StockAlert, Domain, DeliveryProfile, LoyaltySettings, Bundle, Redirect, Webhook, ApiKey, ActivityEntry, PayMethod, PublicStore, AnalyticsSummary } from "../types";
 /**
  * API CONTRACT — the single source of truth for the backend.
  *
@@ -38,14 +38,24 @@ export interface Api {
     };
     products: {
         list(storeId: string): Promise<Product[]>;
+        /** One server-side page (default 20 rows) — filtered + sorted by the backend. */
+        listPage(storeId: string, params: ProductListParams): Promise<ProductPage>;
+        /** Exact summary counts (total/active/draft/lowStock) — not limited to the list page. */
+        counts(storeId: string): Promise<ProductCounts>;
         create(storeId: string, p: Product): Promise<Product>;
         save(storeId: string, p: Product): Promise<Product>;
         remove(storeId: string, id: string): Promise<void>;
     };
     orders: {
         list(storeId: string): Promise<Order[]>;
+        /** One server-side page (default 20 rows) — filtered + sorted by the backend. */
+        listPage(storeId: string, params: OrderListParams): Promise<OrderPage>;
+        /** Exact summary counts (total/unfulfilled/unpaid/totalSales) — not limited to the list page. */
+        counts(storeId: string, range?: number): Promise<OrderCounts>;
         update(storeId: string, id: number, patch: Partial<Order>, event?: string): Promise<Order>;
         create(storeId: string, input: CheckoutInput): Promise<Order>;
+        /** Manual order from the admin Orders page — same endpoint, admin-shaped body. */
+        createManual(storeId: string, input: ManualOrderInput): Promise<Order>;
         cancel(storeId: string, id: number): Promise<Order>; // must restock server-side
         fulfill(storeId: string, id: number): Promise<Order>;
         refund(storeId: string, id: number, amount: number): Promise<Order>;

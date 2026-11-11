@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { api } from "../api";
 import { Breakdown } from "../components/Breakdown";
 import PrintDoc from "../components/PrintDocs";
@@ -185,6 +185,7 @@ export default function OrderDetail() {
     const t = useT();
     const { id } = useParams();
     const nav = useNavigate();
+    const loc = useLocation();
     const storeId = useAuth((s) => s.user!.storeId!);
     const { data, reload } = useLoad(() => Promise.all([api.orders.list(storeId), api.customers.list(storeId), api.products.list(storeId), api.settings.get(storeId), api.discounts.list(storeId), api.returns.list(storeId)]), [storeId]);
     const [amt, setAmt] = useState("");
@@ -193,7 +194,12 @@ export default function OrderDetail() {
     const [retOpen, setRetOpen] = useState(false);
     const [trackOpen, setTrackOpen] = useState(false);
     const [confirmCancel, setConfirmCancel] = useState(false);
-    const [doc, setDoc] = useState<null | "invoice" | "packing" | "label">(null);
+    // Auto-open the invoice when navigated here from a paid manual order
+    // (Orders page passes { state: { print: "invoice" } }).
+    const [doc, setDoc] = useState<null | "invoice" | "packing" | "label">(() => {
+        const s = loc.state as { print?: string } | null;
+        return s?.print === "invoice" ? "invoice" : null;
+    });
     if (!data) return <Loading />;
     const [orders, customers, products, settings, discounts, returns] = data;
     const o = orders.find((x) => String(x.id) === id);

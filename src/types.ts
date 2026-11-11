@@ -20,12 +20,24 @@ export interface Product {
     preorder?: boolean; // allow purchase even when all variants are out of stock
     subscribable?: boolean; // customers can buy this on a recurring subscription plan
 }
+
+/** Exact Products-page summary counts from GET /stores/{id}/products/counts. */
+export interface ProductCounts { total: number; active: number; draft: number; lowStock: number }
+
+/** One server-side page from GET /stores/{id}/products/page — only the rows shown. */
+export interface ProductPage { items: Product[]; total: number; hasMore: boolean }
+export interface ProductListParams { page?: number; size?: number; status?: string; q?: string; collectionId?: string; stock?: string; sort?: string }
 export interface Customer { id: string; name: string; email: string; phone?: string; notes?: string; addresses: string[]; wishlist?: string[]; tags?: string[]; points?: number; credit?: number; emailVerified?: boolean; phoneVerified?: boolean }
 export interface OrderItem { variantId: string; qty: number }
 export type PayStatus = "Pending" | "Paid" | "Refunded" | "Cancelled";
 export type FulfillStatus = "Unfulfilled" | "Fulfilled" | "Cancelled";
 export interface OrderEvent { at: number; text: string }
-export interface Order { id: number; customerId: string; items: OrderItem[]; pay: PayStatus; ful: FulfillStatus; createdAt: number; refunded: number; log: OrderEvent[]; zoneId?: string; rateId?: string; code?: string; channel?: "pos"; giftApplied?: number; tracking?: TrackingInfo; locationId?: string; payMethod?: string; courierId?: string; trxId?: string }
+export interface Order { id: number; customerId: string; items: OrderItem[]; pay: PayStatus; ful: FulfillStatus; createdAt: number; refunded: number; log: OrderEvent[]; zoneId?: string; rateId?: string; code?: string; channel?: "pos"; giftApplied?: number; tracking?: TrackingInfo; locationId?: string; payMethod?: string; courierId?: string; trxId?: string; /** Server-stored total in taka (from totalMinor) — the list endpoint sends no line items, so totals must come from here, not orderTotal. */ total?: number }
+/** One server-side page of orders (default 20 rows). */
+export interface OrderPage { items: Order[]; total: number; hasMore: boolean }
+export interface OrderListParams { page?: number; size?: number; tab?: string; pay?: string; ful?: string; range?: number; q?: string; sort?: string }
+/** Exact summary counts for the Orders stat strip — totalSales in taka. */
+export interface OrderCounts { total: number; unfulfilled: number; unpaid: number; totalSales: number }
 export type Plan = "Starter" | "Growth" | "Pro";
 export interface Invoice { id: string; date: number; plan: Plan; amount: number; status: "Paid" }
 export interface PayMethod { kind: "card" | "bkash" | "nagad" | "rocket" | "sslcommerz"; label: string; last4?: string; trxId?: string }
@@ -62,6 +74,8 @@ export interface DeliveryProfile { id: string; name: string; productIds: string[
 export interface TrackingInfo { carrier: string; number: string; url?: string; labelReady?: boolean }
 export interface Settings { storeName: string; currency: string; zones: ShippingZone[]; freeOver: number; tax: { on: boolean; rate: number; inclusive: boolean }; taxRegions: TaxRegion[]; pay: { cod: boolean; card: boolean; methods?: Record<string, boolean>; testMode?: boolean; manualNumbers?: Record<string, string> }; rates?: Record<string, number>; seoDescription?: string; defaultLang?: "en" | "bn"; publishedLangs?: string[]; notifications?: { newOrderEmail?: string; lowStock: boolean; abandonedReminders: boolean; events?: Record<string, { email: boolean; sms: boolean }>; templates?: Record<string, { subject: string; emailBody: string; smsBody: string }>; sms?: { provider?: string; apiKey?: string; senderId?: string } }; checkout?: { guestCheckout: boolean; expressButtons: boolean; orderNotes: boolean; autoConfirmPaid?: boolean }; couriers?: Record<string, { on: boolean; creds: Record<string, string> }>; tracking?: { metaPixelId?: string; ga4Id?: string; gtmId?: string; tiktokId?: string }; emailSender?: { name?: string; email?: string }; brevo?: { apiKey?: string } }
 export interface CheckoutInput { customer: { name: string; email: string; phone?: string }; items: OrderItem[]; zoneId: string; rateId?: string; code?: string; paymentMethod: string; giftCode?: string; note?: string; trxId?: string }
+/** Manual order created by the merchant from the admin Orders page — POST /stores/{id}/orders. */
+export interface ManualOrderInput { customerId?: string; email?: string; phone?: string; items: OrderItem[]; payMethod: string; discountCode?: string; notes?: string }
 /** Public checkout order request — mirrors POST /stores/{id}/checkout/orders. */
 export interface CheckoutOrderInput {
     customer: { name: string; email: string; phone?: string };

@@ -192,6 +192,9 @@ export function httpApi(base: string): Api {
             pay, ful,
             // Backend sends discountCode/giftAppliedMinor; frontend expects code/giftApplied.
             code: (d.discountCode ?? d.code ?? "") as string,
+            // The list endpoint sends no line items — the stored total (minor → taka)
+            // is the only correct total there. Single-order loads also carry it.
+            total: d.total != null ? Number(d.total) / 100 : undefined,
             // MONEY BOUNDARY: backend minor units (poisha) → frontend taka.
             refunded: Number(d.refunded ?? 0) / 100,
             giftApplied: d.giftAppliedMinor != null ? Number(d.giftAppliedMinor) / 100 : Number(d.giftApplied ?? 0),
@@ -312,6 +315,21 @@ export function httpApi(base: string): Api {
         },
         products: {
             list: (s) => req<unknown[]>(`/stores/${s}/products`).then((ps) => ps.map(normalizeProduct)),
+            counts: (s) => req<import("../types").ProductCounts>(`/stores/${s}/products/counts`),
+            listPage: (s, p) => {
+                const qs = new URLSearchParams();
+                if (p.page != null) qs.set("page", String(p.page));
+                if (p.size != null) qs.set("size", String(p.size));
+                if (p.status) qs.set("status", p.status);
+                if (p.q) qs.set("q", p.q);
+                if (p.collectionId) qs.set("collectionId", p.collectionId);
+                if (p.stock) qs.set("stock", p.stock);
+                if (p.sort) qs.set("sort", p.sort);
+                const q = qs.toString();
+                return req<{ items: unknown[]; total: number; hasMore: boolean }>(
+                    `/stores/${s}/products/page${q ? `?${q}` : ""}`)
+                    .then((r) => ({ items: r.items.map(normalizeProduct), total: r.total, hasMore: r.hasMore }));
+            },
             // New products MUST go through POST create: the backend assigns the numeric
             // id server-side. PUT save with a client-generated UUID id gets a 400
             // because the backend declares @PathVariable Long id.
@@ -322,8 +340,25 @@ export function httpApi(base: string): Api {
         },
         orders: {
             list: (s) => req<unknown[]>(`/stores/${s}/orders`).then((os) => os.map(normalizeOrder)),
+            listPage: (s, params) => {
+                const qs = new URLSearchParams();
+                if (params.page != null) qs.set("page", String(params.page));
+                if (params.size != null) qs.set("size", String(params.size));
+                if (params.tab) qs.set("tab", params.tab);
+                if (params.pay) qs.set("pay", params.pay);
+                if (params.ful) qs.set("ful", params.ful);
+                if (params.range != null) qs.set("range", String(params.range));
+                if (params.q) qs.set("q", params.q);
+                if (params.sort) qs.set("sort", params.sort);
+                const q = qs.toString();
+                return req<{ items: unknown[]; total: number; hasMore: boolean }>(`/stores/${s}/orders/page${q ? `?${q}` : ""}`)
+                    .then((r) => ({ items: r.items.map(normalizeOrder), total: r.total, hasMore: r.hasMore }));
+            },
+            counts: (s, range) => req<{ total: number; unfulfilled: number; unpaid: number; totalSalesMinor: number }>(`/stores/${s}/orders/counts${range ? `?range=${range}` : ""}`)
+                .then((r) => ({ total: r.total, unfulfilled: r.unfulfilled, unpaid: r.unpaid, totalSales: (r.totalSalesMinor ?? 0) / 100 })),
             update: (s, id, patch, event) => req<unknown>(`/stores/${s}/orders/${id}`, "PATCH", { patch, event }).then(normalizeOrder),
             create: (s, input) => req<unknown>(`/stores/${s}/orders`, "POST", input).then(normalizeOrder),
+            createManual: (s, input) => req<unknown>(`/stores/${s}/orders`, "POST", input).then(normalizeOrder),
             cancel: (s, id) => req<unknown>(`/stores/${s}/orders/${id}/cancel`, "POST").then(normalizeOrder),
             fulfill: (s, id) => req<unknown>(`/stores/${s}/orders/${id}/fulfill`, "POST").then(normalizeOrder),
             /** amount in minor units (poisha). Callers must convert from taka: Math.round(taka * 100). */
